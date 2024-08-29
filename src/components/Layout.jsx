@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutIcon, UsersIcon, BuildingIcon, InboxIcon } from 'lucide-react';
+import { LayoutIcon, UsersIcon, BuildingIcon, InboxIcon, HomeIcon } from 'lucide-react';
 
 const NavLink = ({ to, children }) => {
   const location = useLocation();
@@ -22,6 +22,10 @@ const Layout = () => {
     <div className="flex h-screen bg-gray-100 font-sans">
       <aside className="w-64 bg-main-blue shadow-md">
         <nav className="mt-5">
+          <NavLink to="/">
+            <HomeIcon className="mr-3 h-5 w-5" />
+            Dashboard
+          </NavLink>
           <NavLink to="/campaigns">
             <LayoutIcon className="mr-3 h-5 w-5" />
             Campaigns
