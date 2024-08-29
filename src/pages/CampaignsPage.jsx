@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 
 const CampaignsPage = () => {
   const [campaigns] = useState([
@@ -16,21 +15,37 @@ const CampaignsPage = () => {
     setSelectedCampaign(campaign);
   };
 
+  const calculatePercentage = (value, total) => {
+    return ((value / total) * 100).toFixed(1) + '%';
+  };
+
+  const getColorClass = (metric) => {
+    switch(metric) {
+      case 'connected': return 'bg-blue-200';
+      case 'messagesSent': return 'bg-yellow-200';
+      case 'replies': return 'bg-orange-200';
+      case 'positiveReplies': return 'bg-green-200';
+      default: return 'bg-gray-200';
+    }
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Campaigns</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-4">
         {campaigns.map((campaign) => (
           <Card key={campaign.id} className="cursor-pointer" onClick={() => handleCampaignClick(campaign)}>
-            <CardHeader>
-              <CardTitle>{campaign.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Prospects: {campaign.prospects}</p>
-              <p>Connected: {campaign.connected}</p>
-              <p>Messages Sent: {campaign.messagesSent}</p>
-              <p>Replies: {campaign.replies}</p>
-              <p>Positive Replies: {campaign.positiveReplies}</p>
+            <CardContent className="p-6">
+              <h2 className="text-xl font-bold mb-4">{campaign.name}</h2>
+              <div className="grid grid-cols-4 gap-4">
+                {['connected', 'messagesSent', 'replies', 'positiveReplies'].map((metric) => (
+                  <div key={metric} className={`p-4 rounded-lg ${getColorClass(metric)}`}>
+                    <p className="font-semibold">{metric.charAt(0).toUpperCase() + metric.slice(1)}</p>
+                    <p className="text-2xl font-bold">{campaign[metric]}</p>
+                    <p>{calculatePercentage(campaign[metric], campaign.prospects)}</p>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         ))}
