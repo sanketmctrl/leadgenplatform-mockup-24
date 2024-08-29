@@ -4,18 +4,24 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 
 const DashboardPage = () => {
   const [selectedCampaign, setSelectedCampaign] = useState('All Campaigns');
+  const [selectedPerformanceCampaign, setSelectedPerformanceCampaign] = useState('All Campaigns');
 
   // Mock data for demonstration purposes
-  const aggregatedData = {
-    prospects: 2250,
-    connected: 650,
-    messagesSent: 1950,
-    replies: 325,
-    positiveReplies: 135
-  };
+  const generatePerformanceData = (campaign) => ({
+    totalProspects: 5000,
+    prospectsSequenced: 3500,
+    connectionRequestsSent: 2000,
+    newConnections: 800,
+    messagesSent: 1500,
+    repliesReceived: 300,
+    positiveRepliesReceived: 150
+  });
+
+  const performanceData = generatePerformanceData(selectedPerformanceCampaign);
 
   const generateDailyData = (campaign) => {
     const data = [];
@@ -25,16 +31,16 @@ const DashboardPage = () => {
       date.setDate(today.getDate() - i);
       data.push({
         date: date.toISOString().split('T')[0],
-        connected: Math.floor(Math.random() * 50) + 10,
+        newConnections: Math.floor(Math.random() * 50) + 10,
         messagesSent: Math.floor(Math.random() * 150) + 50,
-        replies: Math.floor(Math.random() * 30) + 5,
-        positiveReplies: Math.floor(Math.random() * 15) + 1,
+        repliesReceived: Math.floor(Math.random() * 30) + 5,
+        positiveRepliesReceived: Math.floor(Math.random() * 15) + 1,
       });
     }
     return data;
   };
 
-  const performanceData = generateDailyData(selectedCampaign);
+  const dailyPerformanceData = generateDailyData(selectedCampaign);
 
   const campaigns = [
     "All Campaigns",
@@ -63,13 +69,34 @@ const DashboardPage = () => {
 
   const getColorClass = (metric) => {
     switch(metric) {
-      case 'connected': return 'bg-main-blue text-white';
+      case 'newConnections': return 'bg-main-blue text-white';
       case 'messagesSent': return 'bg-purple text-white';
-      case 'replies': return 'bg-sky-blue text-white';
-      case 'positiveReplies': return 'bg-light-blue text-main-blue';
-      case 'prospects': return 'text-main-blue';
-      default: return 'bg-gray-200';
+      case 'repliesReceived': return 'bg-sky-blue text-white';
+      case 'positiveRepliesReceived': return 'bg-light-blue text-main-blue';
+      default: return 'bg-gray-200 text-main-blue';
     }
+  };
+
+  const calculatePercentage = (value, total) => {
+    return ((value / total) * 100).toFixed(1) + '%';
+  };
+
+  const averagePerformance = {
+    newConnections: 35,
+    repliesReceived: 18,
+    positiveRepliesReceived: 8
+  };
+
+  const ComparisonWidget = ({ metric, value, average }) => {
+    const difference = value - average;
+    const isAbove = difference > 0;
+    return (
+      <div className={`flex items-center ${isAbove ? 'text-green-500' : 'text-red-500'}`}>
+        {isAbove ? <ArrowUpIcon className="w-4 h-4 mr-1" /> : <ArrowDownIcon className="w-4 h-4 mr-1" />}
+        <span>{Math.abs(difference).toFixed(1)} pts</span>
+        <span className="ml-2 text-gray-500">({average}% avg)</span>
+      </div>
+    );
   };
 
   return (
@@ -78,13 +105,52 @@ const DashboardPage = () => {
       
       {/* Aggregated Metrics */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Performance across all campaigns</h2>
-        <div className="grid grid-cols-5 gap-4">
-          {Object.entries(aggregatedData).map(([key, value]) => (
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Performance across campaigns</h2>
+          <Select value={selectedPerformanceCampaign} onValueChange={setSelectedPerformanceCampaign}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select campaign" />
+            </SelectTrigger>
+            <SelectContent>
+              {campaigns.map((campaign) => (
+                <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid grid-cols-4 gap-4">
+          {Object.entries(performanceData).map(([key, value]) => (
             <Card key={key} className={`${getColorClass(key)}`}>
               <CardContent className="p-6">
-                <h2 className="text-lg font-semibold mb-2">{key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim()}</h2>
+                <h2 className="text-lg font-semibold mb-2">{key.replace(/([A-Z])/g, ' $1').trim()}</h2>
                 <p className="text-3xl font-bold">{value}</p>
+                {['newConnections', 'repliesReceived', 'positiveRepliesReceived'].includes(key) && (
+                  <p className="text-sm mt-2">
+                    {calculatePercentage(value, key === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.messagesSent)}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Performance Comparison */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Performance compared to our average campaigns</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {['newConnections', 'repliesReceived', 'positiveRepliesReceived'].map((metric) => (
+            <Card key={metric} className={getColorClass(metric)}>
+              <CardContent className="p-6">
+                <h2 className="text-lg font-semibold mb-2">{metric.replace(/([A-Z])/g, ' $1').trim()}</h2>
+                <p className="text-3xl font-bold">
+                  {calculatePercentage(performanceData[metric], metric === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.messagesSent)}
+                </p>
+                <ComparisonWidget 
+                  metric={metric}
+                  value={parseFloat(calculatePercentage(performanceData[metric], metric === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.messagesSent))}
+                  average={averagePerformance[metric]}
+                />
               </CardContent>
             </Card>
           ))}
@@ -109,7 +175,7 @@ const DashboardPage = () => {
           </div>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={performanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <AreaChart data={dailyPerformanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   dataKey="date" 
@@ -118,10 +184,10 @@ const DashboardPage = () => {
                 />
                 <YAxis />
                 <Tooltip />
-                <Area type="monotone" dataKey="connected" stackId="1" stroke="#040056" fill="#040056" />
+                <Area type="monotone" dataKey="newConnections" stackId="1" stroke="#040056" fill="#040056" />
                 <Area type="monotone" dataKey="messagesSent" stackId="1" stroke="#DA0EAA" fill="#DA0EAA" />
-                <Area type="monotone" dataKey="replies" stackId="1" stroke="#63CDFF" fill="#63CDFF" />
-                <Area type="monotone" dataKey="positiveReplies" stackId="1" stroke="#00FFE0" fill="#00FFE0" />
+                <Area type="monotone" dataKey="repliesReceived" stackId="1" stroke="#63CDFF" fill="#63CDFF" />
+                <Area type="monotone" dataKey="positiveRepliesReceived" stackId="1" stroke="#00FFE0" fill="#00FFE0" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
