@@ -25,6 +25,7 @@ const CampaignsPage = () => {
       case 'messagesSent': return 'bg-purple text-white';
       case 'replies': return 'bg-sky-blue text-white';
       case 'positiveReplies': return 'bg-light-blue text-main-blue';
+      case 'prospects': return 'text-main-blue';
       default: return 'bg-gray-200';
     }
   };
@@ -37,12 +38,12 @@ const CampaignsPage = () => {
           <Card key={campaign.id} className="cursor-pointer" onClick={() => handleCampaignClick(campaign)}>
             <CardContent className="p-6">
               <h2 className="text-xl font-bold mb-4">{campaign.name}</h2>
-              <div className="grid grid-cols-4 gap-4">
-                {['connected', 'messagesSent', 'replies', 'positiveReplies'].map((metric) => (
+              <div className="grid grid-cols-5 gap-4">
+                {['prospects', 'connected', 'messagesSent', 'replies', 'positiveReplies'].map((metric) => (
                   <div key={metric} className={`p-4 rounded-lg ${getColorClass(metric)}`}>
                     <p className="font-semibold">{metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1').trim()}</p>
                     <p className="text-2xl font-bold">{campaign[metric]}</p>
-                    <p>{calculatePercentage(campaign[metric], campaign.prospects)}</p>
+                    {metric !== 'prospects' && <p>{calculatePercentage(campaign[metric], campaign.prospects)}</p>}
                   </div>
                 ))}
               </div>
