@@ -21,7 +21,15 @@ const DashboardPage = () => {
     positiveRepliesReceived: 150
   });
 
-  const performanceData = generatePerformanceData(selectedPerformanceCampaign);
+  const performanceData = {
+    totalProspects: 5000,
+    prospectsSequenced: 3500,
+    connectionRequestsSent: 2000,
+    newConnections: 800,
+    messagesSent: 1500,
+    repliesReceived: 300,
+    positiveRepliesReceived: 150
+  };
 
   const generateDailyData = (campaign) => {
     const data = [];
@@ -70,10 +78,14 @@ const DashboardPage = () => {
   const getColorClass = (metric) => {
     switch(metric) {
       case 'newConnections': return 'bg-main-blue text-white';
-      case 'messagesSent': return 'bg-purple text-white';
       case 'repliesReceived': return 'bg-sky-blue text-white';
-      case 'positiveRepliesReceived': return 'bg-light-blue text-main-blue';
-      default: return 'bg-gray-200 text-main-blue';
+      case 'positiveRepliesReceived': return 'bg-[#00FFE0] text-white';
+      case 'totalProspects':
+      case 'prospectsSequenced':
+      case 'connectionRequestsSent':
+      case 'messagesSent':
+        return 'bg-gray-100 text-main-blue';
+      default: return 'bg-gray-100 text-main-blue';
     }
   };
 
@@ -106,7 +118,7 @@ const DashboardPage = () => {
       {/* Aggregated Metrics */}
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Performance across campaigns</h2>
+          <h2 className="text-xl font-semibold">Performance Across Campaigns</h2>
           <Select value={selectedPerformanceCampaign} onValueChange={setSelectedPerformanceCampaign}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select campaign" />
@@ -118,14 +130,14 @@ const DashboardPage = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-7 gap-2">
           {Object.entries(performanceData).map(([key, value]) => (
             <Card key={key} className={`${getColorClass(key)}`}>
-              <CardContent className="p-6">
-                <h2 className="text-lg font-semibold mb-2">{key.replace(/([A-Z])/g, ' $1').trim()}</h2>
-                <p className="text-3xl font-bold">{value}</p>
+              <CardContent className="p-3">
+                <h2 className="text-sm font-semibold mb-1">{key.split(/(?=[A-Z])/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</h2>
+                <p className="text-xl font-bold">{value}</p>
                 {['newConnections', 'repliesReceived', 'positiveRepliesReceived'].includes(key) && (
-                  <p className="text-sm mt-2">
+                  <p className="text-xs mt-1">
                     {calculatePercentage(value, key === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.messagesSent)}
                   </p>
                 )}
