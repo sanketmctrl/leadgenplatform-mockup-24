@@ -8,6 +8,7 @@ import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 
 const DashboardPage = () => {
   const [selectedCampaign, setSelectedCampaign] = useState('All Campaigns');
+  const [selectedChannel, setSelectedChannel] = useState('Email & LinkedIn');
   const [performanceData, setPerformanceData] = useState({});
   const [dailyPerformanceData, setDailyPerformanceData] = useState([]);
 
@@ -18,38 +19,58 @@ const DashboardPage = () => {
     "New Product Launch"
   ];
 
-  // Mock data generation functions
-  const generatePerformanceData = (campaign) => ({
-    totalProspects: Math.floor(Math.random() * 10000) + 5000,
-    prospectsSequenced: Math.floor(Math.random() * 8000) + 3000,
-    connectionRequestsSent: Math.floor(Math.random() * 5000) + 2000,
-    prospectsMessaged: Math.floor(Math.random() * 4000) + 1500,
-    newConnections: Math.floor(Math.random() * 2000) + 800,
-    repliesReceived: Math.floor(Math.random() * 1000) + 300,
-    positiveRepliesReceived: Math.floor(Math.random() * 500) + 150
-  });
+  const channels = [
+    "Email",
+    "LinkedIn",
+    "Email & LinkedIn"
+  ];
 
-  const generateDailyData = (campaign) => {
+  // Mock data generation functions
+  const generatePerformanceData = (campaign, channel) => {
+    const baseData = {
+      totalProspects: Math.floor(Math.random() * 10000) + 5000,
+      prospectsSequenced: Math.floor(Math.random() * 8000) + 3000,
+      connectionRequestsSent: Math.floor(Math.random() * 5000) + 2000,
+      prospectsMessaged: Math.floor(Math.random() * 4000) + 1500,
+      newConnections: Math.floor(Math.random() * 2000) + 800,
+      repliesReceived: Math.floor(Math.random() * 1000) + 300,
+      positiveRepliesReceived: Math.floor(Math.random() * 500) + 150
+    };
+
+    if (channel === 'Email') {
+      baseData.connectionRequestsSent = 0;
+      baseData.newConnections = 0;
+    }
+
+    return baseData;
+  };
+
+  const generateDailyData = (campaign, channel) => {
     const data = [];
     const today = new Date();
     for (let i = 30; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(today.getDate() - i);
-      data.push({
+      const dailyData = {
         date: date.toISOString().split('T')[0],
-        newConnections: Math.floor(Math.random() * 50) + 10,
         messagesSent: Math.floor(Math.random() * 150) + 50,
         repliesReceived: Math.floor(Math.random() * 30) + 5,
         positiveRepliesReceived: Math.floor(Math.random() * 15) + 1,
-      });
+      };
+
+      if (channel !== 'Email') {
+        dailyData.newConnections = Math.floor(Math.random() * 50) + 10;
+      }
+
+      data.push(dailyData);
     }
     return data;
   };
 
   useEffect(() => {
-    setPerformanceData(generatePerformanceData(selectedCampaign));
-    setDailyPerformanceData(generateDailyData(selectedCampaign));
-  }, [selectedCampaign]);
+    setPerformanceData(generatePerformanceData(selectedCampaign, selectedChannel));
+    setDailyPerformanceData(generateDailyData(selectedCampaign, selectedChannel));
+  }, [selectedCampaign, selectedChannel]);
 
   const bestCampaigns = [
     { name: "Summer Outreach", positiveReplyRate: "15%", description: "Targeting warm leads from previous interactions" },
@@ -104,18 +125,34 @@ const DashboardPage = () => {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       
-      {/* Campaign Selector */}
-      <div className="flex justify-end items-center mb-4">
-        <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select campaign" />
-          </SelectTrigger>
-          <SelectContent>
-            {campaigns.map((campaign) => (
-              <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Campaign and Channel Selectors */}
+      <div className="flex justify-end items-center mb-4 space-x-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Filter by campaign</label>
+          <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select campaign" />
+            </SelectTrigger>
+            <SelectContent>
+              {campaigns.map((campaign) => (
+                <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Filter by campaign outreach channel</label>
+          <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select channel" />
+            </SelectTrigger>
+            <SelectContent>
+              {channels.map((channel) => (
+                <SelectItem key={channel} value={channel}>{channel}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       
       {/* Performance Across Campaigns */}
@@ -126,7 +163,7 @@ const DashboardPage = () => {
             <Card key={key} className="bg-gray-100">
               <CardContent className="p-3">
                 <h2 className="text-sm font-semibold mb-1 text-main-blue capitalize">{key.split(/(?=[A-Z])/).join(' ')}</h2>
-                <p className="text-xl font-bold text-main-blue">{performanceData[key]}</p>
+                <p className="text-2xl font-bold text-main-blue">{performanceData[key]}</p>
               </CardContent>
             </Card>
           ))}
@@ -140,11 +177,11 @@ const DashboardPage = () => {
             <Card key={key} className={getColorClass(key)}>
               <CardContent className="p-3">
                 <h2 className="text-sm font-semibold mb-1 capitalize">{label}</h2>
-                <p className="text-xl font-bold">{performanceData[key]}</p>
-                <p className="text-sm">
+                <p className="text-2xl font-bold">{performanceData[key]}</p>
+                <p className="text-lg">
                   {calculatePercentage(performanceData[key], performanceData[total])}
                 </p>
-                <p className="text-xs mt-1">Performance compared to average campaigns:</p>
+                <p className="text-xs mt-1">Average Comparison:</p>
                 <ComparisonWidget 
                   metric={key}
                   value={parseFloat(calculatePercentage(performanceData[key], performanceData[total]))}
@@ -171,7 +208,9 @@ const DashboardPage = () => {
                 />
                 <YAxis />
                 <Tooltip />
-                <Area type="monotone" dataKey="newConnections" stackId="1" stroke="#040056" fill="#040056" />
+                {selectedChannel !== 'Email' && (
+                  <Area type="monotone" dataKey="newConnections" stackId="1" stroke="#040056" fill="#040056" />
+                )}
                 <Area type="monotone" dataKey="messagesSent" stackId="1" stroke="#DA0EAA" fill="#DA0EAA" />
                 <Area type="monotone" dataKey="repliesReceived" stackId="1" stroke="#63CDFF" fill="#63CDFF" />
                 <Area type="monotone" dataKey="positiveRepliesReceived" stackId="1" stroke="#00FFE0" fill="#00FFE0" />
