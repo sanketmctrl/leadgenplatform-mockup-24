@@ -12,13 +12,24 @@ const DashboardPage = () => {
     positiveReplies: 135
   };
 
-  const performanceData = [
-    { date: '2023-01-01', connected: 100, messagesSent: 300, replies: 50, positiveReplies: 20 },
-    { date: '2023-02-01', connected: 150, messagesSent: 450, replies: 75, positiveReplies: 30 },
-    { date: '2023-03-01', connected: 200, messagesSent: 600, replies: 100, positiveReplies: 40 },
-    { date: '2023-04-01', connected: 250, messagesSent: 750, replies: 125, positiveReplies: 50 },
-    { date: '2023-05-01', connected: 300, messagesSent: 900, replies: 150, positiveReplies: 60 },
-  ];
+  const generateDailyData = () => {
+    const data = [];
+    const today = new Date();
+    for (let i = 30; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      data.push({
+        date: date.toISOString().split('T')[0],
+        connected: Math.floor(Math.random() * 50) + 10,
+        messagesSent: Math.floor(Math.random() * 150) + 50,
+        replies: Math.floor(Math.random() * 30) + 5,
+        positiveReplies: Math.floor(Math.random() * 15) + 1,
+      });
+    }
+    return data;
+  };
+
+  const performanceData = generateDailyData();
 
   const bestCampaigns = [
     { name: "Summer Outreach", positiveReplyRate: "15%" },
@@ -71,9 +82,13 @@ const DashboardPage = () => {
           <h2 className="text-xl font-semibold mb-4">Performance</h2>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={performanceData}>
+              <AreaChart data={performanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(tick) => new Date(tick).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  interval={6}
+                />
                 <YAxis />
                 <Tooltip />
                 <Area type="monotone" dataKey="connected" stackId="1" stroke="#040056" fill="#040056" />
