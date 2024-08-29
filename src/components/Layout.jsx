@@ -22,6 +22,9 @@ const Layout = () => {
     <div className="flex h-screen bg-gray-100 font-sans">
       <aside className="w-64 bg-main-blue shadow-md overflow-y-auto">
         <nav className="mt-5">
+          <div className="mb-2 px-4 text-sm font-semibold text-gray-400 uppercase">
+            Outbound Campaign Management
+          </div>
           <NavLink to="/">
             <HomeIcon className="mr-3 h-5 w-5" />
             Dashboard
