@@ -20,8 +20,8 @@ const NavLink = ({ to, children }) => {
 const Layout = () => {
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
-      <aside className="w-64 bg-main-blue shadow-md overflow-y-auto">
-        <nav className="mt-5">
+      <aside className="w-64 bg-main-blue shadow-md overflow-y-auto flex flex-col">
+        <nav className="flex-grow mt-5">
           <div className="mb-2 px-4 text-sm font-semibold text-gray-400 uppercase">
             Outbound Campaign Management
           </div>
@@ -66,6 +66,15 @@ const Layout = () => {
             Message Templates
           </NavLink>
         </nav>
+        <div className="p-4 border-t border-gray-700">
+          <div className="flex items-center">
+            <div className="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
+            <div>
+              <p className="text-sm text-white">User: John Doe</p>
+              <p className="text-xs text-gray-400">Company: Acme Inc.</p>
+            </div>
+          </div>
+        </div>
       </aside>
       <main className="flex-1 p-8 overflow-auto">
         <Outlet />
