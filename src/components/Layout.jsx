@@ -47,7 +47,7 @@ const Layout = () => {
       >
         <nav className="flex-grow mt-5">
           <div className={`mb-2 px-4 text-sm font-semibold text-gray-400 uppercase ${!isHovered ? 'hidden' : ''}`}>
-            Outbound Campaign Management
+            OUTBOUND CAMPAIGNS
           </div>
           <NavLink to="/" isCollapsed={!isHovered}>
             <HomeIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
