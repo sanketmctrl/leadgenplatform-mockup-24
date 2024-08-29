@@ -41,7 +41,7 @@ const Layout = () => {
       <aside 
         className={`bg-main-blue shadow-md overflow-y-auto flex flex-col transition-all duration-300 
           ${isNavVisible ? (isHovered ? 'w-64' : 'w-20') : 'w-0'} 
-          md:relative fixed z-20 h-full p-2 rounded-r-lg`}
+          md:relative fixed z-20 h-full md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 p-2 rounded-r-lg md:rounded-lg`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
