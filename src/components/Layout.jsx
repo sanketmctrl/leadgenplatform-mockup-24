@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { LayoutIcon, UsersIcon, BuildingIcon, InboxIcon, HomeIcon, BanIcon, UserIcon, FileTextIcon, RocketIcon, MenuIcon, XIcon } from 'lucide-react';
 
-const NavLink = ({ to, children, isCollapsed }) => {
+const NavLink = ({ to, children }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
   return (
@@ -10,7 +10,7 @@ const NavLink = ({ to, children, isCollapsed }) => {
       to={to}
       className={`flex items-center px-4 py-2 text-white hover:bg-light-blue hover:text-main-blue transition-colors duration-200 ${
         isActive ? 'bg-opacity-20 bg-light-blue' : ''
-      } ${isCollapsed ? 'justify-center' : ''}`}
+      }`}
     >
       {children}
     </Link>
@@ -19,19 +19,6 @@ const NavLink = ({ to, children, isCollapsed }) => {
 
 const Layout = () => {
   const [isNavVisible, setIsNavVisible] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsNavVisible(window.innerWidth > 768);
-      setIsCollapsed(window.innerWidth <= 1024);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const toggleNav = () => {
     setIsNavVisible(!isNavVisible);
@@ -40,60 +27,57 @@ const Layout = () => {
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
       <aside 
-        className={`bg-main-blue shadow-md overflow-y-auto flex flex-col transition-all duration-300 
-          ${isNavVisible ? 'w-64' : 'w-0'} 
-          md:relative fixed z-20 h-full 
-          md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 md:p-2 md:rounded-lg
-          ${isCollapsed ? 'md:w-20' : 'md:w-64'}`}
-        onMouseEnter={() => setIsCollapsed(false)}
-        onMouseLeave={() => setIsCollapsed(true)}
+        className={`bg-main-blue shadow-md overflow-y-auto flex flex-col
+          fixed md:relative z-20 h-full w-64
+          md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 md:rounded-lg
+          transition-all duration-300 ${isNavVisible ? 'left-0' : '-left-64'} md:left-0`}
       >
-        <nav className="flex-grow mt-5">
-          <div className={`mb-2 px-4 text-sm font-semibold text-gray-400 uppercase ${isCollapsed ? 'md:hidden' : ''}`}>
+        <nav className="flex-grow mt-5 px-4 py-6">
+          <div className="mb-6 text-sm font-semibold text-gray-400 uppercase">
             Outbound Campaign Management
           </div>
-          <NavLink to="/" isCollapsed={isCollapsed}>
-            <HomeIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Dashboard'}
+          <NavLink to="/">
+            <HomeIcon className="h-5 w-5 mr-3" />
+            Dashboard
           </NavLink>
-          <NavLink to="/campaigns" isCollapsed={isCollapsed}>
-            <LayoutIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Campaigns'}
+          <NavLink to="/campaigns">
+            <LayoutIcon className="h-5 w-5 mr-3" />
+            Campaigns
           </NavLink>
-          <NavLink to="/prospects" isCollapsed={isCollapsed}>
-            <UsersIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Prospects'}
+          <NavLink to="/prospects">
+            <UsersIcon className="h-5 w-5 mr-3" />
+            Prospects
           </NavLink>
-          <NavLink to="/accounts" isCollapsed={isCollapsed}>
-            <BuildingIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Accounts'}
+          <NavLink to="/accounts">
+            <BuildingIcon className="h-5 w-5 mr-3" />
+            Accounts
           </NavLink>
-          <NavLink to="/exclusions" isCollapsed={isCollapsed}>
-            <BanIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Exclusions'}
+          <NavLink to="/exclusions">
+            <BanIcon className="h-5 w-5 mr-3" />
+            Exclusions
           </NavLink>
-          <NavLink to="/inbox" isCollapsed={isCollapsed}>
-            <InboxIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Inbox'}
+          <NavLink to="/inbox">
+            <InboxIcon className="h-5 w-5 mr-3" />
+            Inbox
           </NavLink>
           
-          <div className={`mt-8 mb-2 px-4 text-sm font-semibold text-gray-400 uppercase ${isCollapsed ? 'md:hidden' : ''}`}>
+          <div className="mt-8 mb-6 text-sm font-semibold text-gray-400 uppercase">
             Ideation & Strategy
           </div>
-          <NavLink to="/onboarding" isCollapsed={isCollapsed}>
-            <RocketIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Onboarding'}
+          <NavLink to="/onboarding">
+            <RocketIcon className="h-5 w-5 mr-3" />
+            Onboarding
           </NavLink>
-          <NavLink to="/personas" isCollapsed={isCollapsed}>
-            <UserIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Personas'}
+          <NavLink to="/personas">
+            <UserIcon className="h-5 w-5 mr-3" />
+            Personas
           </NavLink>
-          <NavLink to="/message-templates" isCollapsed={isCollapsed}>
-            <FileTextIcon className={`h-5 w-5 ${isCollapsed ? 'md:mx-auto' : 'mr-3'}`} />
-            {(!isCollapsed || !isNavVisible) && 'Message Templates'}
+          <NavLink to="/message-templates">
+            <FileTextIcon className="h-5 w-5 mr-3" />
+            Message Templates
           </NavLink>
         </nav>
-        <div className={`p-4 border-t border-gray-700 ${isCollapsed ? 'md:hidden' : ''}`}>
+        <div className="p-4 border-t border-gray-700">
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
             <div>
