@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { LayoutIcon, UsersIcon, BuildingIcon, InboxIcon, HomeIcon, BanIcon, UserIcon, FileTextIcon, RocketIcon, MenuIcon, XIcon } from 'lucide-react';
 
@@ -20,6 +20,7 @@ const NavLink = ({ to, children, onClick }) => {
 
 const Layout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -29,11 +30,24 @@ const Layout = () => {
     setIsMenuOpen(false);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        closeMenu();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:block w-64 bg-main-blue shadow-md overflow-y-auto m-4 rounded-lg">
-        <nav className="mt-5 px-4">
+      <aside className="hidden md:block w-64 bg-main-blue shadow-md overflow-y-auto m-2 rounded-lg">
+        <nav className="mt-4 px-3">
           <div className="mb-2 text-sm font-semibold text-gray-400 uppercase">
             Outbound Campaign Management
           </div>
@@ -96,7 +110,7 @@ const Layout = () => {
 
       {/* Mobile Sidebar */}
       {isMenuOpen && (
-        <aside className="fixed inset-y-0 left-0 z-10 w-64 bg-main-blue shadow-md overflow-y-auto md:hidden">
+        <aside ref={menuRef} className="fixed inset-y-0 left-0 z-10 w-64 bg-main-blue shadow-md overflow-y-auto md:hidden">
           <nav className="mt-16">
             <div className="mb-2 px-4 text-sm font-semibold text-gray-400 uppercase">
               Outbound Campaign Management
