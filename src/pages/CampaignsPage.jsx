@@ -21,10 +21,10 @@ const CampaignsPage = () => {
 
   const getColorClass = (metric) => {
     switch(metric) {
-      case 'connected': return 'bg-blue-200';
-      case 'messagesSent': return 'bg-yellow-200';
-      case 'replies': return 'bg-orange-200';
-      case 'positiveReplies': return 'bg-green-200';
+      case 'connected': return 'bg-main-blue text-white';
+      case 'messagesSent': return 'bg-sky-blue text-white';
+      case 'replies': return 'bg-purple text-white';
+      case 'positiveReplies': return 'bg-light-blue text-main-blue';
       default: return 'bg-gray-200';
     }
   };
@@ -40,7 +40,7 @@ const CampaignsPage = () => {
               <div className="grid grid-cols-4 gap-4">
                 {['connected', 'messagesSent', 'replies', 'positiveReplies'].map((metric) => (
                   <div key={metric} className={`p-4 rounded-lg ${getColorClass(metric)}`}>
-                    <p className="font-semibold">{metric.charAt(0).toUpperCase() + metric.slice(1)}</p>
+                    <p className="font-semibold">{metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1').trim()}</p>
                     <p className="text-2xl font-bold">{campaign[metric]}</p>
                     <p>{calculatePercentage(campaign[metric], campaign.prospects)}</p>
                   </div>
