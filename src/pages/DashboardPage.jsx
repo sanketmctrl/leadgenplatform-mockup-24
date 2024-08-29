@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -8,20 +8,26 @@ import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 
 const DashboardPage = () => {
   const [selectedCampaign, setSelectedCampaign] = useState('All Campaigns');
-  const [selectedPerformanceCampaign, setSelectedPerformanceCampaign] = useState('All Campaigns');
+  const [performanceData, setPerformanceData] = useState({});
+  const [dailyPerformanceData, setDailyPerformanceData] = useState([]);
 
-  // Mock data for demonstration purposes
+  const campaigns = [
+    "All Campaigns",
+    "Summer Outreach",
+    "Q4 Sales Push",
+    "New Product Launch"
+  ];
+
+  // Mock data generation functions
   const generatePerformanceData = (campaign) => ({
-    totalProspects: 5000,
-    prospectsSequenced: 3500,
-    connectionRequestsSent: 2000,
-    prospectsMessaged: 1500,
-    newConnections: 800,
-    repliesReceived: 300,
-    positiveRepliesReceived: 150
+    totalProspects: Math.floor(Math.random() * 10000) + 5000,
+    prospectsSequenced: Math.floor(Math.random() * 8000) + 3000,
+    connectionRequestsSent: Math.floor(Math.random() * 5000) + 2000,
+    prospectsMessaged: Math.floor(Math.random() * 4000) + 1500,
+    newConnections: Math.floor(Math.random() * 2000) + 800,
+    repliesReceived: Math.floor(Math.random() * 1000) + 300,
+    positiveRepliesReceived: Math.floor(Math.random() * 500) + 150
   });
-
-  const performanceData = generatePerformanceData(selectedPerformanceCampaign);
 
   const generateDailyData = (campaign) => {
     const data = [];
@@ -40,14 +46,10 @@ const DashboardPage = () => {
     return data;
   };
 
-  const dailyPerformanceData = generateDailyData(selectedCampaign);
-
-  const campaigns = [
-    "All Campaigns",
-    "Summer Outreach",
-    "Q4 Sales Push",
-    "New Product Launch"
-  ];
+  useEffect(() => {
+    setPerformanceData(generatePerformanceData(selectedCampaign));
+    setDailyPerformanceData(generateDailyData(selectedCampaign));
+  }, [selectedCampaign]);
 
   const bestCampaigns = [
     { name: "Summer Outreach", positiveReplyRate: "15%", description: "Targeting warm leads from previous interactions" },
@@ -102,44 +104,50 @@ const DashboardPage = () => {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       
+      {/* Campaign Selector */}
+      <div className="flex justify-end items-center mb-4">
+        <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select campaign" />
+          </SelectTrigger>
+          <SelectContent>
+            {campaigns.map((campaign) => (
+              <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
       {/* Performance Across Campaigns */}
       <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Performance Across Campaigns</h2>
-          <Select value={selectedPerformanceCampaign} onValueChange={setSelectedPerformanceCampaign}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select campaign" />
-            </SelectTrigger>
-            <SelectContent>
-              {campaigns.map((campaign) => (
-                <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <h2 className="text-xl font-semibold mb-4">Performance Across Campaigns</h2>
         <div className="grid grid-cols-4 gap-2 mb-2">
           {['totalProspects', 'prospectsSequenced', 'connectionRequestsSent', 'prospectsMessaged'].map((key) => (
             <Card key={key} className="bg-gray-100">
               <CardContent className="p-3">
-                <h2 className="text-xs font-semibold mb-1 text-main-blue">{key.split(/(?=[A-Z])/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</h2>
-                <p className="text-lg font-bold text-main-blue">{performanceData[key]}</p>
+                <h2 className="text-sm font-semibold mb-1 text-main-blue capitalize">{key.split(/(?=[A-Z])/).join(' ')}</h2>
+                <p className="text-xl font-bold text-main-blue">{performanceData[key]}</p>
               </CardContent>
             </Card>
           ))}
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {['newConnections', 'repliesReceived', 'positiveRepliesReceived'].map((key) => (
+          {[
+            { key: 'newConnections', total: 'connectionRequestsSent', label: 'New Connections' },
+            { key: 'repliesReceived', total: 'prospectsMessaged', label: 'Prospects Replied' },
+            { key: 'positiveRepliesReceived', total: 'prospectsMessaged', label: 'Positive Prospect Replies' }
+          ].map(({ key, total, label }) => (
             <Card key={key} className={getColorClass(key)}>
               <CardContent className="p-3">
-                <h2 className="text-xs font-semibold mb-1">{key.split(/(?=[A-Z])/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</h2>
-                <p className="text-lg font-bold">{performanceData[key]}</p>
-                <p className="text-xs">
-                  {calculatePercentage(performanceData[key], key === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.prospectsMessaged)}
+                <h2 className="text-sm font-semibold mb-1 capitalize">{label}</h2>
+                <p className="text-xl font-bold">{performanceData[key]}</p>
+                <p className="text-sm">
+                  {calculatePercentage(performanceData[key], performanceData[total])}
                 </p>
                 <p className="text-xs mt-1">Performance compared to average campaigns:</p>
                 <ComparisonWidget 
                   metric={key}
-                  value={parseFloat(calculatePercentage(performanceData[key], key === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.prospectsMessaged))}
+                  value={parseFloat(calculatePercentage(performanceData[key], performanceData[total]))}
                   average={averagePerformance[key]}
                 />
               </CardContent>
@@ -151,19 +159,7 @@ const DashboardPage = () => {
       {/* Performance Chart */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Daily performance across campaigns</h2>
-            <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select campaign" />
-              </SelectTrigger>
-              <SelectContent>
-                {campaigns.map((campaign) => (
-                  <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <h2 className="text-xl font-semibold mb-4">Daily Performance</h2>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={dailyPerformanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
