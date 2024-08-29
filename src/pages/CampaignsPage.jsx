@@ -22,8 +22,8 @@ const CampaignsPage = () => {
   const getColorClass = (metric) => {
     switch(metric) {
       case 'connected': return 'bg-main-blue text-white';
-      case 'messagesSent': return 'bg-sky-blue text-white';
-      case 'replies': return 'bg-purple text-white';
+      case 'messagesSent': return 'bg-purple text-white';
+      case 'replies': return 'bg-sky-blue text-white';
       case 'positiveReplies': return 'bg-light-blue text-main-blue';
       default: return 'bg-gray-200';
     }
