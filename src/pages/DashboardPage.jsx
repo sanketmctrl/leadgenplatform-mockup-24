@@ -15,21 +15,13 @@ const DashboardPage = () => {
     totalProspects: 5000,
     prospectsSequenced: 3500,
     connectionRequestsSent: 2000,
+    prospectsMessaged: 1500,
     newConnections: 800,
-    messagesSent: 1500,
     repliesReceived: 300,
     positiveRepliesReceived: 150
   });
 
-  const performanceData = {
-    totalProspects: 5000,
-    prospectsSequenced: 3500,
-    connectionRequestsSent: 2000,
-    newConnections: 800,
-    messagesSent: 1500,
-    repliesReceived: 300,
-    positiveRepliesReceived: 150
-  };
+  const performanceData = generatePerformanceData(selectedPerformanceCampaign);
 
   const generateDailyData = (campaign) => {
     const data = [];
@@ -79,12 +71,7 @@ const DashboardPage = () => {
     switch(metric) {
       case 'newConnections': return 'bg-main-blue text-white';
       case 'repliesReceived': return 'bg-sky-blue text-white';
-      case 'positiveRepliesReceived': return 'bg-[#00FFE0] text-white';
-      case 'totalProspects':
-      case 'prospectsSequenced':
-      case 'connectionRequestsSent':
-      case 'messagesSent':
-        return 'bg-gray-100 text-main-blue';
+      case 'positiveRepliesReceived': return 'bg-[#00FFE0] text-main-blue';
       default: return 'bg-gray-100 text-main-blue';
     }
   };
@@ -104,9 +91,9 @@ const DashboardPage = () => {
     const isAbove = difference > 0;
     return (
       <div className={`flex items-center ${isAbove ? 'text-green-500' : 'text-red-500'}`}>
-        {isAbove ? <ArrowUpIcon className="w-4 h-4 mr-1" /> : <ArrowDownIcon className="w-4 h-4 mr-1" />}
-        <span>{Math.abs(difference).toFixed(1)} pts</span>
-        <span className="ml-2 text-gray-500">({average}% avg)</span>
+        {isAbove ? <ArrowUpIcon className="w-3 h-3 mr-1" /> : <ArrowDownIcon className="w-3 h-3 mr-1" />}
+        <span className="text-xs">{Math.abs(difference).toFixed(1)} pts</span>
+        <span className="ml-1 text-xs text-gray-500">({average}% avg)</span>
       </div>
     );
   };
@@ -115,7 +102,7 @@ const DashboardPage = () => {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       
-      {/* Aggregated Metrics */}
+      {/* Performance Across Campaigns */}
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Performance Across Campaigns</h2>
@@ -130,38 +117,30 @@ const DashboardPage = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="grid grid-cols-7 gap-2">
-          {Object.entries(performanceData).map(([key, value]) => (
-            <Card key={key} className={`${getColorClass(key)}`}>
+        <div className="grid grid-cols-4 gap-2 mb-2">
+          {['totalProspects', 'prospectsSequenced', 'connectionRequestsSent', 'prospectsMessaged'].map((key) => (
+            <Card key={key} className="bg-gray-100">
               <CardContent className="p-3">
-                <h2 className="text-sm font-semibold mb-1">{key.split(/(?=[A-Z])/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</h2>
-                <p className="text-xl font-bold">{value}</p>
-                {['newConnections', 'repliesReceived', 'positiveRepliesReceived'].includes(key) && (
-                  <p className="text-xs mt-1">
-                    {calculatePercentage(value, key === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.messagesSent)}
-                  </p>
-                )}
+                <h2 className="text-xs font-semibold mb-1 text-main-blue">{key.split(/(?=[A-Z])/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</h2>
+                <p className="text-lg font-bold text-main-blue">{performanceData[key]}</p>
               </CardContent>
             </Card>
           ))}
         </div>
-      </div>
-
-      {/* Performance Comparison */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Performance compared to our average campaigns</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {['newConnections', 'repliesReceived', 'positiveRepliesReceived'].map((metric) => (
-            <Card key={metric} className={getColorClass(metric)}>
-              <CardContent className="p-6">
-                <h2 className="text-lg font-semibold mb-2">{metric.replace(/([A-Z])/g, ' $1').trim()}</h2>
-                <p className="text-3xl font-bold">
-                  {calculatePercentage(performanceData[metric], metric === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.messagesSent)}
+        <div className="grid grid-cols-3 gap-2">
+          {['newConnections', 'repliesReceived', 'positiveRepliesReceived'].map((key) => (
+            <Card key={key} className={getColorClass(key)}>
+              <CardContent className="p-3">
+                <h2 className="text-xs font-semibold mb-1">{key.split(/(?=[A-Z])/).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</h2>
+                <p className="text-lg font-bold">{performanceData[key]}</p>
+                <p className="text-xs">
+                  {calculatePercentage(performanceData[key], key === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.prospectsMessaged)}
                 </p>
+                <p className="text-xs mt-1">Performance compared to average campaigns:</p>
                 <ComparisonWidget 
-                  metric={metric}
-                  value={parseFloat(calculatePercentage(performanceData[metric], metric === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.messagesSent))}
-                  average={averagePerformance[metric]}
+                  metric={key}
+                  value={parseFloat(calculatePercentage(performanceData[key], key === 'newConnections' ? performanceData.connectionRequestsSent : performanceData.prospectsMessaged))}
+                  average={averagePerformance[key]}
                 />
               </CardContent>
             </Card>
