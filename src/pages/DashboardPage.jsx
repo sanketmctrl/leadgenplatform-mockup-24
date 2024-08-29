@@ -116,7 +116,7 @@ const DashboardPage = () => {
     return (
       <div className={`flex items-center ${isAbove ? 'text-green-500' : 'text-red-500'}`}>
         {isAbove ? <ArrowUpIcon className="w-3 h-3 mr-1" /> : <ArrowDownIcon className="w-3 h-3 mr-1" />}
-        <span className="text-xs">{Math.abs(difference).toFixed(1)} pts</span>
+        <span className="text-xs">{Math.abs(difference).toFixed(1)} ppts</span>
         <span className="ml-1 text-xs text-gray-500">({average}% avg)</span>
       </div>
     );
@@ -168,7 +168,7 @@ const DashboardPage = () => {
                   {performanceData[key]}
                   {key === 'prospectsSequenced' && (
                     <span className="text-lg ml-2">
-                      ({((performanceData.prospectsSequenced / performanceData.totalProspects) * 100).toFixed(1)}%)
+                      ({calculatePercentage(performanceData.prospectsSequenced, performanceData.totalProspects)})
                     </span>
                   )}
                 </p>
@@ -185,11 +185,8 @@ const DashboardPage = () => {
             <Card key={key} className={getColorClass(key)}>
               <CardContent className="p-3">
                 <h2 className="text-sm font-semibold mb-1 capitalize">{label}</h2>
-                <p className="text-2xl font-bold">{performanceData[key]}</p>
-                <p className="text-lg">
-                  {calculatePercentage(performanceData[key], performanceData[total])}
-                </p>
-                <p className="text-xs mt-1">Average Comparison:</p>
+                <p className="text-2xl font-bold">{calculatePercentage(performanceData[key], performanceData[total])}</p>
+                <p className="text-lg">{performanceData[key]}</p>
                 <p className="text-xs mt-1">Average Comparison:</p>
                 <ComparisonWidget 
                   metric={key}
