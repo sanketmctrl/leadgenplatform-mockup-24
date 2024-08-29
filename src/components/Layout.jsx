@@ -18,7 +18,7 @@ const NavLink = ({ to, children, isCollapsed }) => {
 };
 
 const Layout = () => {
-  const [isNavVisible, setIsNavVisible] = useState(true);
+  const [isNavVisible, setIsNavVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
@@ -40,57 +40,59 @@ const Layout = () => {
     <div className="flex h-screen bg-gray-100 font-sans">
       <aside 
         className={`bg-main-blue shadow-md overflow-y-auto flex flex-col transition-all duration-300 
-          ${isNavVisible ? (isHovered ? 'w-64' : 'w-20') : 'w-0'} 
-          md:relative fixed z-20 h-full md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 p-2 rounded-r-lg md:rounded-lg`}
+          ${isNavVisible ? 'w-64' : 'w-0'} 
+          md:w-auto md:relative fixed z-20 h-full 
+          md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 md:p-2 md:rounded-lg
+          ${isHovered ? 'md:w-64' : 'md:w-20'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <nav className="flex-grow mt-5">
-          <div className={`mb-2 px-4 text-sm font-semibold text-gray-400 uppercase ${!isHovered ? 'hidden' : ''}`}>
+          <div className={`mb-2 px-4 text-sm font-semibold text-gray-400 uppercase ${!isNavVisible && !isHovered ? 'md:hidden' : ''}`}>
             OUTBOUND CAMPAIGNS
           </div>
-          <NavLink to="/" isCollapsed={!isHovered}>
-            <HomeIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Dashboard'}
+          <NavLink to="/" isCollapsed={!isNavVisible && !isHovered}>
+            <HomeIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Dashboard'}
           </NavLink>
-          <NavLink to="/campaigns" isCollapsed={!isHovered}>
-            <LayoutIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Campaigns'}
+          <NavLink to="/campaigns" isCollapsed={!isNavVisible && !isHovered}>
+            <LayoutIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Campaigns'}
           </NavLink>
-          <NavLink to="/prospects" isCollapsed={!isHovered}>
-            <UsersIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Prospects'}
+          <NavLink to="/prospects" isCollapsed={!isNavVisible && !isHovered}>
+            <UsersIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Prospects'}
           </NavLink>
-          <NavLink to="/accounts" isCollapsed={!isHovered}>
-            <BuildingIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Accounts'}
+          <NavLink to="/accounts" isCollapsed={!isNavVisible && !isHovered}>
+            <BuildingIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Accounts'}
           </NavLink>
-          <NavLink to="/exclusions" isCollapsed={!isHovered}>
-            <BanIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Exclusions'}
+          <NavLink to="/exclusions" isCollapsed={!isNavVisible && !isHovered}>
+            <BanIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Exclusions'}
           </NavLink>
-          <NavLink to="/inbox" isCollapsed={!isHovered}>
-            <InboxIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Inbox'}
+          <NavLink to="/inbox" isCollapsed={!isNavVisible && !isHovered}>
+            <InboxIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Inbox'}
           </NavLink>
           
-          <div className={`mt-8 mb-2 px-4 text-sm font-semibold text-gray-400 uppercase ${!isHovered ? 'hidden' : ''}`}>
+          <div className={`mt-8 mb-2 px-4 text-sm font-semibold text-gray-400 uppercase ${!isNavVisible && !isHovered ? 'md:hidden' : ''}`}>
             Ideation & Strategy
           </div>
-          <NavLink to="/onboarding" isCollapsed={!isHovered}>
-            <RocketIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Onboarding'}
+          <NavLink to="/onboarding" isCollapsed={!isNavVisible && !isHovered}>
+            <RocketIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Onboarding'}
           </NavLink>
-          <NavLink to="/personas" isCollapsed={!isHovered}>
-            <UserIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Personas'}
+          <NavLink to="/personas" isCollapsed={!isNavVisible && !isHovered}>
+            <UserIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Personas'}
           </NavLink>
-          <NavLink to="/message-templates" isCollapsed={!isHovered}>
-            <FileTextIcon className={`h-5 w-5 ${!isHovered ? '' : 'mr-3'}`} />
-            {isHovered && 'Message Templates'}
+          <NavLink to="/message-templates" isCollapsed={!isNavVisible && !isHovered}>
+            <FileTextIcon className={`h-5 w-5 ${!isNavVisible && !isHovered ? 'md:mx-auto' : 'mr-3'}`} />
+            {(isNavVisible || isHovered) && 'Message Templates'}
           </NavLink>
         </nav>
-        <div className={`p-4 border-t border-gray-700 ${!isHovered ? 'hidden' : ''}`}>
+        <div className={`p-4 border-t border-gray-700 ${!isNavVisible && !isHovered ? 'md:hidden' : ''}`}>
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full bg-gray-300 mr-3"></div>
             <div>
