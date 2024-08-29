@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutIcon, UsersIcon, BuildingIcon, InboxIcon, HomeIcon, BanIcon, UserIcon, FileTextIcon, RocketIcon, MenuIcon } from 'lucide-react';
+import { LayoutIcon, UsersIcon, BuildingIcon, InboxIcon, HomeIcon, BanIcon, UserIcon, FileTextIcon, RocketIcon, MenuIcon, XIcon } from 'lucide-react';
 
 const NavLink = ({ to, children, isCollapsed }) => {
   const location = useLocation();
@@ -51,7 +51,7 @@ const Layout = () => {
       <aside 
         className={`bg-main-blue shadow-md overflow-y-auto flex flex-col transition-all duration-300 ${
           isNavVisible ? (isCollapsed ? 'w-16' : 'w-64') : 'w-0'
-        } md:relative absolute z-10 h-full`}
+        } md:relative fixed z-20 h-full`}
       >
         <nav className="flex-grow mt-5">
           <div className={`mb-2 px-4 text-sm font-semibold text-gray-400 uppercase ${isCollapsed ? 'hidden' : ''}`}>
@@ -111,13 +111,13 @@ const Layout = () => {
       <div className="flex flex-col flex-1">
         <header className="bg-white shadow-md p-4 flex justify-between items-center">
           <button 
-            onClick={toggleNav} 
-            className="md:hidden text-main-blue hover:text-light-blue transition-colors duration-200"
+            onClick={toggleNav}
+            className="text-main-blue hover:text-light-blue transition-colors duration-200 z-30"
           >
-            <MenuIcon className="h-6 w-6" />
+            {isNavVisible ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
           </button>
           <button 
-            onClick={toggleCollapse} 
+            onClick={toggleCollapse}
             className="hidden md:block text-main-blue hover:text-light-blue transition-colors duration-200"
           >
             <MenuIcon className="h-6 w-6" />
@@ -128,6 +128,12 @@ const Layout = () => {
           <Outlet />
         </main>
       </div>
+      {isNavVisible && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
+          onClick={toggleNav}
+        ></div>
+      )}
     </div>
   );
 };
