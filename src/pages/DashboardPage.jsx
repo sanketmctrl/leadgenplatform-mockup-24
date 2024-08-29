@@ -8,7 +8,7 @@ import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 
 const DashboardPage = () => {
   const [selectedCampaign, setSelectedCampaign] = useState('All Campaigns');
-  const [selectedChannel, setSelectedChannel] = useState('Email & LinkedIn');
+  const [selectedChannel, setSelectedChannel] = useState('All Channels');
   const [performanceData, setPerformanceData] = useState({});
   const [dailyPerformanceData, setDailyPerformanceData] = useState([]);
 
@@ -20,6 +20,7 @@ const DashboardPage = () => {
   ];
 
   const channels = [
+    "All Channels",
     "Email",
     "LinkedIn",
     "Email & LinkedIn"
@@ -37,7 +38,7 @@ const DashboardPage = () => {
       positiveRepliesReceived: Math.floor(Math.random() * 500) + 150
     };
 
-    if (channel === 'Email') {
+    if (channel === 'Email' || channel === 'All Channels') {
       baseData.connectionRequestsSent = 0;
       baseData.newConnections = 0;
     }
@@ -125,45 +126,52 @@ const DashboardPage = () => {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
       
-      {/* Campaign and Channel Selectors */}
-      <div className="flex justify-end items-center mb-4 space-x-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Filter by campaign</label>
-          <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select campaign" />
-            </SelectTrigger>
-            <SelectContent>
-              {campaigns.map((campaign) => (
-                <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Filter by campaign outreach channel</label>
-          <Select value={selectedChannel} onValueChange={setSelectedChannel}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select channel" />
-            </SelectTrigger>
-            <SelectContent>
-              {channels.map((channel) => (
-                <SelectItem key={channel} value={channel}>{channel}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      
       {/* Performance Across Campaigns */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Performance Across Campaigns</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Performance Across Campaigns</h2>
+          <div className="flex items-center space-x-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Filter by campaign</label>
+              <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select campaign" />
+                </SelectTrigger>
+                <SelectContent>
+                  {campaigns.map((campaign) => (
+                    <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Filter by campaign outreach channel</label>
+              <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select channel" />
+                </SelectTrigger>
+                <SelectContent>
+                  {channels.map((channel) => (
+                    <SelectItem key={channel} value={channel}>{channel}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
         <div className="grid grid-cols-4 gap-2 mb-2">
           {['totalProspects', 'prospectsSequenced', 'connectionRequestsSent', 'prospectsMessaged'].map((key) => (
             <Card key={key} className="bg-gray-100">
               <CardContent className="p-3">
                 <h2 className="text-sm font-semibold mb-1 text-main-blue capitalize">{key.split(/(?=[A-Z])/).join(' ')}</h2>
-                <p className="text-2xl font-bold text-main-blue">{performanceData[key]}</p>
+                <p className="text-3xl font-bold text-main-blue">
+                  {performanceData[key]}
+                  {key === 'prospectsSequenced' && (
+                    <span className="text-lg ml-2">
+                      ({((performanceData.prospectsSequenced / performanceData.totalProspects) * 100).toFixed(1)}%)
+                    </span>
+                  )}
+                </p>
               </CardContent>
             </Card>
           ))}
@@ -181,6 +189,7 @@ const DashboardPage = () => {
                 <p className="text-lg">
                   {calculatePercentage(performanceData[key], performanceData[total])}
                 </p>
+                <p className="text-xs mt-1">Average Comparison:</p>
                 <p className="text-xs mt-1">Average Comparison:</p>
                 <ComparisonWidget 
                   metric={key}
@@ -208,7 +217,7 @@ const DashboardPage = () => {
                 />
                 <YAxis />
                 <Tooltip />
-                {selectedChannel !== 'Email' && (
+                {selectedChannel !== 'Email' && selectedChannel !== 'All Channels' && (
                   <Area type="monotone" dataKey="newConnections" stackId="1" stroke="#040056" fill="#040056" />
                 )}
                 <Area type="monotone" dataKey="messagesSent" stackId="1" stroke="#DA0EAA" fill="#DA0EAA" />
