@@ -5,12 +5,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
+import { DatePicker } from "@/components/ui/date-picker";
+import { format, subDays, subMonths, isWithinInterval } from 'date-fns';
 
 const DashboardPage = () => {
   const [selectedCampaign, setSelectedCampaign] = useState('All Campaigns');
   const [selectedChannel, setSelectedChannel] = useState('All Channels');
   const [performanceData, setPerformanceData] = useState({});
   const [dailyPerformanceData, setDailyPerformanceData] = useState([]);
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState('Last 30 Days');
+  const [customDateRange, setCustomDateRange] = useState({ start: null, end: null });
 
   const campaigns = [
     "All Campaigns",
@@ -46,14 +50,12 @@ const DashboardPage = () => {
     return baseData;
   };
 
-  const generateDailyData = (campaign, channel) => {
+  const generateDailyData = (campaign, channel, startDate, endDate) => {
     const data = [];
-    const today = new Date();
-    for (let i = 30; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
       const dailyData = {
-        date: date.toISOString().split('T')[0],
+        date: format(currentDate, 'yyyy-MM-dd'),
         messagesSent: Math.floor(Math.random() * 150) + 50,
         repliesReceived: Math.floor(Math.random() * 30) + 5,
         positiveRepliesReceived: Math.floor(Math.random() * 15) + 1,
@@ -64,14 +66,47 @@ const DashboardPage = () => {
       }
 
       data.push(dailyData);
+      currentDate.setDate(currentDate.getDate() + 1);
     }
     return data;
   };
 
+  const getDateRangeForTimePeriod = (period) => {
+    const endDate = new Date();
+    let startDate;
+
+    switch (period) {
+      case 'Last 7 Days':
+        startDate = subDays(endDate, 6);
+        break;
+      case 'Last 14 Days':
+        startDate = subDays(endDate, 13);
+        break;
+      case 'Last Month':
+        startDate = subMonths(endDate, 1);
+        break;
+      case 'Last 6 Months':
+        startDate = subMonths(endDate, 6);
+        break;
+      case 'All Time':
+        startDate = new Date(2020, 0, 1); // Arbitrary start date
+        break;
+      case 'Custom Date Range':
+        startDate = customDateRange.start || subDays(endDate, 29);
+        endDate = customDateRange.end || endDate;
+        break;
+      default: // 'Last 30 Days'
+        startDate = subDays(endDate, 29);
+    }
+
+    return { startDate, endDate };
+  };
+
   useEffect(() => {
     setPerformanceData(generatePerformanceData(selectedCampaign, selectedChannel));
-    setDailyPerformanceData(generateDailyData(selectedCampaign, selectedChannel));
-  }, [selectedCampaign, selectedChannel]);
+    const { startDate, endDate } = getDateRangeForTimePeriod(selectedTimePeriod);
+    setDailyPerformanceData(generateDailyData(selectedCampaign, selectedChannel, startDate, endDate));
+  }, [selectedCampaign, selectedChannel, selectedTimePeriod, customDateRange]);
 
   const bestCampaigns = [
     { name: "Summer Outreach", positiveReplyRate: "15%", description: "Targeting warm leads from previous interactions" },
@@ -202,7 +237,46 @@ const DashboardPage = () => {
       {/* Performance Chart */}
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Daily Performance</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">Daily Performance</h2>
+            <div className="flex items-center space-x-2">
+              <Select value={selectedTimePeriod} onValueChange={setSelectedTimePeriod}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select time period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Last 7 Days">Last 7 Days</SelectItem>
+                  <SelectItem value="Last 14 Days">Last 14 Days</SelectItem>
+                  <SelectItem value="Last 30 Days">Last 30 Days</SelectItem>
+                  <SelectItem value="Last Month">Last Month</SelectItem>
+                  <SelectItem value="Last 6 Months">Last 6 Months</SelectItem>
+                  <SelectItem value="All Time">All Time</SelectItem>
+                  <SelectItem value="Custom Date Range">Custom Date Range</SelectItem>
+                </SelectContent>
+              </Select>
+              {selectedTimePeriod === 'Custom Date Range' && (
+                <div className="flex items-center space-x-2">
+                  <DatePicker
+                    selected={customDateRange.start}
+                    onChange={(date) => setCustomDateRange(prev => ({ ...prev, start: date }))}
+                    selectsStart
+                    startDate={customDateRange.start}
+                    endDate={customDateRange.end}
+                    placeholderText="Start Date"
+                  />
+                  <DatePicker
+                    selected={customDateRange.end}
+                    onChange={(date) => setCustomDateRange(prev => ({ ...prev, end: date }))}
+                    selectsEnd
+                    startDate={customDateRange.start}
+                    endDate={customDateRange.end}
+                    minDate={customDateRange.start}
+                    placeholderText="End Date"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={dailyPerformanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
@@ -210,7 +284,7 @@ const DashboardPage = () => {
                 <XAxis 
                   dataKey="date" 
                   tickFormatter={(tick) => new Date(tick).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  interval={6}
+                  interval={Math.floor(dailyPerformanceData.length / 7)}
                 />
                 <YAxis />
                 <Tooltip />
