@@ -1,28 +1,43 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { LayoutIcon, UsersIcon, BuildingIcon, InboxIcon } from 'lucide-react';
+
+const NavLink = ({ to, children }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+  return (
+    <Link
+      to={to}
+      className={`flex items-center px-4 py-2 text-white hover:bg-light-blue hover:text-main-blue transition-colors duration-200 ${
+        isActive ? 'bg-opacity-20 bg-light-blue' : ''
+      }`}
+    >
+      {children}
+    </Link>
+  );
+};
 
 const Layout = () => {
   return (
-    <div className="flex h-screen bg-gray-100">
-      <aside className="w-64 bg-white shadow-md">
+    <div className="flex h-screen bg-gray-100 font-sans">
+      <aside className="w-64 bg-main-blue shadow-md">
         <nav className="mt-5">
-          <Link to="/campaigns" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
+          <NavLink to="/campaigns">
             <LayoutIcon className="mr-3 h-5 w-5" />
             Campaigns
-          </Link>
-          <Link to="/prospects" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
+          </NavLink>
+          <NavLink to="/prospects">
             <UsersIcon className="mr-3 h-5 w-5" />
             Prospects
-          </Link>
-          <Link to="/accounts" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
+          </NavLink>
+          <NavLink to="/accounts">
             <BuildingIcon className="mr-3 h-5 w-5" />
             Accounts
-          </Link>
-          <Link to="/inbox" className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200">
+          </NavLink>
+          <NavLink to="/inbox">
             <InboxIcon className="mr-3 h-5 w-5" />
             Inbox
-          </Link>
+          </NavLink>
         </nav>
       </aside>
       <main className="flex-1 p-8 overflow-auto">
