@@ -160,16 +160,16 @@ const DashboardPage = () => {
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      
+  
       {/* Performance Across Campaigns */}
       <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Performance Across Campaigns</h2>
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+          <h2 className="text-xl font-semibold mb-2 sm:mb-0">Performance Across Campaigns</h2>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Filter by campaign</label>
               <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Select campaign" />
                 </SelectTrigger>
                 <SelectContent>
@@ -182,7 +182,7 @@ const DashboardPage = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Filter by campaign outreach channel</label>
               <Select value={selectedChannel} onValueChange={setSelectedChannel}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Select channel" />
                 </SelectTrigger>
                 <SelectContent>
@@ -194,15 +194,15 @@ const DashboardPage = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-2 mb-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
           {['totalProspects', 'prospectsSequenced', 'connectionRequestsSent', 'prospectsMessaged'].map((key) => (
             <Card key={key} className="bg-gray-100">
               <CardContent className="p-3">
-                <h2 className="text-sm font-semibold mb-1 text-main-blue capitalize">{key.split(/(?=[A-Z])/).join(' ')}</h2>
-                <p className="text-3xl font-bold text-main-blue">
+                <h2 className="text-xs sm:text-sm font-semibold mb-1 text-main-blue capitalize">{key.split(/(?=[A-Z])/).join(' ')}</h2>
+                <p className="text-xl sm:text-3xl font-bold text-main-blue">
                   {performanceData[key]}
                   {key === 'prospectsSequenced' && (
-                    <span className="text-lg ml-2">
+                    <span className="text-sm sm:text-lg ml-1 sm:ml-2">
                       ({calculatePercentage(performanceData.prospectsSequenced, performanceData.totalProspects)})
                     </span>
                   )}
@@ -211,7 +211,7 @@ const DashboardPage = () => {
             </Card>
           ))}
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           {[
             { key: 'newConnections', total: 'connectionRequestsSent', label: 'New Connections' },
             { key: 'repliesReceived', total: 'prospectsMessaged', label: 'Prospects Replied' },
@@ -220,8 +220,8 @@ const DashboardPage = () => {
             <Card key={key} className={getColorClass(key)}>
               <CardContent className="p-3">
                 <h2 className="text-sm font-semibold mb-1 capitalize">{label}</h2>
-                <p className="text-2xl font-bold">{calculatePercentage(performanceData[key], performanceData[total])}</p>
-                <p className="text-lg">{performanceData[key]}</p>
+                <p className="text-xl sm:text-2xl font-bold">{calculatePercentage(performanceData[key], performanceData[total])}</p>
+                <p className="text-base sm:text-lg">{performanceData[key]}</p>
                 <p className="text-xs mt-1">Average Comparison:</p>
                 <ComparisonWidget 
                   metric={key}
@@ -236,12 +236,12 @@ const DashboardPage = () => {
 
       {/* Performance Chart */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Daily Performance</h2>
-            <div className="flex items-center space-x-2">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            <h2 className="text-xl font-semibold mb-2 sm:mb-0">Daily Performance</h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
               <Select value={selectedTimePeriod} onValueChange={setSelectedTimePeriod}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Select time period" />
                 </SelectTrigger>
                 <SelectContent>
@@ -255,7 +255,7 @@ const DashboardPage = () => {
                 </SelectContent>
               </Select>
               {selectedTimePeriod === 'Custom Date Range' && (
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
                   <DatePicker
                     selected={customDateRange.start}
                     onChange={(date) => setCustomDateRange(prev => ({ ...prev, start: date }))}
@@ -277,16 +277,17 @@ const DashboardPage = () => {
               )}
             </div>
           </div>
-          <div className="h-80">
+          <div className="h-60 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={dailyPerformanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <AreaChart data={dailyPerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   dataKey="date" 
                   tickFormatter={(tick) => new Date(tick).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  interval={Math.floor(dailyPerformanceData.length / 7)}
+                  interval={Math.floor(dailyPerformanceData.length / 5)}
+                  tick={{ fontSize: 10 }}
                 />
-                <YAxis />
+                <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
                 {selectedChannel !== 'Email' && selectedChannel !== 'All Channels' && (
                   <Area type="monotone" dataKey="newConnections" stackId="1" stroke="#040056" fill="#040056" />
@@ -301,23 +302,23 @@ const DashboardPage = () => {
       </Card>
 
       {/* Best Performing Campaigns, Messages, and Opportunities */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Best Performing Campaigns</h2>
+          <CardContent className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Best Performing Campaigns</h2>
             <ScrollArea className="h-[200px]">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Campaign</TableHead>
-                    <TableHead>Positive Reply Rate</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Campaign</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Positive Reply Rate</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {bestCampaigns.map((campaign, index) => (
                     <TableRow key={index} className="cursor-pointer hover:bg-gray-100" onClick={() => alert(`Campaign: ${campaign.name}\nDescription: ${campaign.description}`)}>
-                      <TableCell>{campaign.name}</TableCell>
-                      <TableCell>{campaign.positiveReplyRate}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{campaign.name}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{campaign.positiveReplyRate}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -326,21 +327,21 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Best Performing Messages</h2>
+          <CardContent className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Best Performing Messages</h2>
             <ScrollArea className="h-[200px]">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Message Preview</TableHead>
-                    <TableHead>Positive Reply Rate</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Message Preview</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Positive Reply Rate</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {bestMessages.map((message, index) => (
                     <TableRow key={index} className="cursor-pointer hover:bg-gray-100" onClick={() => alert(`Full Message:\n${message.fullContent}\n\nPositive Reply Rate: ${message.positiveReplyRate}`)}>
-                      <TableCell className="truncate max-w-[200px]">{message.content}</TableCell>
-                      <TableCell>{message.positiveReplyRate}</TableCell>
+                      <TableCell className="truncate max-w-[120px] sm:max-w-[200px] text-xs sm:text-sm">{message.content}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{message.positiveReplyRate}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -349,23 +350,23 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Opportunities</h2>
+          <CardContent className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Opportunities</h2>
             <ScrollArea className="h-[200px]">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Name</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Company</TableHead>
+                    <TableHead className="text-xs sm:text-sm">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {opportunities.map((opportunity, index) => (
                     <TableRow key={index} className="cursor-pointer hover:bg-gray-100" onClick={() => alert(`Opportunity Details:\nName: ${opportunity.name}\nCompany: ${opportunity.company}\nStatus: ${opportunity.status}\nNotes: ${opportunity.notes}`)}>
-                      <TableCell>{opportunity.name}</TableCell>
-                      <TableCell>{opportunity.company}</TableCell>
-                      <TableCell>{opportunity.status}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{opportunity.name}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{opportunity.company}</TableCell>
+                      <TableCell className="text-xs sm:text-sm">{opportunity.status}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
