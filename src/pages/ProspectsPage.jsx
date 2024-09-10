@@ -9,8 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { dummyProspects, getCompanyById } from '../utils/dummyData';
-import { getStatusColor, sortProspects } from '../utils/prospectUtils';
+import { dummyProspects, getStatusColor, sortProspects } from '../utils/prospectUtils';
 import ProspectDetails from '../components/ProspectDetails';
 
 const ProspectsPage = () => {
@@ -37,7 +36,7 @@ const ProspectsPage = () => {
       result = result.filter(prospect => 
         prospect.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         prospect.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getCompanyById(prospect.companyId).name.toLowerCase().includes(searchTerm.toLowerCase())
+        prospect.organisation.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -98,7 +97,7 @@ const ProspectsPage = () => {
       <h1 className="text-2xl font-bold">Prospects</h1>
       <div className="flex space-x-4 mb-4">
         <Input
-          placeholder="Search names, job titles, companies..."
+          placeholder="Search names, job titles, organisations..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
@@ -156,8 +155,8 @@ const ProspectsPage = () => {
                   <TableHead onClick={() => handleSort('name')} className="cursor-pointer">
                     Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
                   </TableHead>
-                  <TableHead onClick={() => handleSort('companyId')} className="cursor-pointer">
-                    Company {sortConfig.key === 'companyId' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  <TableHead onClick={() => handleSort('organisation')} className="cursor-pointer">
+                    Organisation {sortConfig.key === 'organisation' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
                   </TableHead>
                   <TableHead onClick={() => handleSort('title')} className="cursor-pointer">
                     Title {sortConfig.key === 'title' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
@@ -186,7 +185,7 @@ const ProspectsPage = () => {
                         />
                       </TableCell>
                       <TableCell>{prospect.name}</TableCell>
-                      <TableCell>{getCompanyById(prospect.companyId).name}</TableCell>
+                      <TableCell>{prospect.organisation}</TableCell>
                       <TableCell>{prospect.title}</TableCell>
                       <TableCell>
                         <a href={prospect.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
