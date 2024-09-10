@@ -1,14 +1,49 @@
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+const dummyProspects = [
+  {
+    id: 1,
+    name: "John Doe",
+    organisation: "Tech Corp",
+    title: "Software Engineer",
+    linkedinUrl: "https://linkedin.com/in/johndoe",
+    email: "john.doe@techcorp.com",
+    activeCampaign: "Summer Outreach",
+    lastActivity: "Connection request sent",
+    status: "Connection Request Sent",
+    firstName: "John",
+    lastName: "Doe",
+    phone: "+1 123-456-7890",
+    linkedinHeadline: "Passionate Software Engineer | AI Enthusiast",
+    linkedinSummary: "Experienced software engineer with a focus on AI and machine learning...",
+    location: "San Francisco, CA",
+    connections: 500,
+    followerCount: 1000,
+    organisationLinkedinUrl: "https://linkedin.com/company/techcorp",
+    website: "https://techcorp.com",
+    organisationDescription: "Leading technology solutions provider...",
+    industry: "Information Technology",
+    organisationLocation: "Silicon Valley, CA",
+    employeeCount: 1000,
+    size: "Medium Enterprise",
+    type: "Public Company",
+    organisationFollowerCount: 50000,
+    activityStream: [
+      { date: "2023-03-15", action: "Added to campaign 'Summer Outreach'" },
+      { date: "2023-03-16", action: "Connection request sent" },
+      { date: "2023-03-18", action: "Connection accepted" },
+      { date: "2023-03-20", action: "Initial message sent" },
+    ]
+  },
+  // ... Add 19 more dummy prospects here with similar structure but different data
+];
 
 const ProspectsPage = () => {
-  const [prospects] = useState([
-    { id: 1, name: "John Doe", company: "Tech Corp", campaign: "Summer Outreach", lastActivity: "Replied to email" },
-    { id: 2, name: "Jane Smith", company: "Innovate Inc", campaign: "Q4 Sales Push", lastActivity: "Viewed LinkedIn profile" },
-    { id: 3, name: "Bob Johnson", company: "Global Solutions", campaign: "New Product Launch", lastActivity: "Opened email" },
-  ]);
-
   const [selectedProspect, setSelectedProspect] = useState(null);
 
   const handleProspectClick = (prospect) => {
@@ -16,42 +51,103 @@ const ProspectsPage = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Prospects</h1>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Company</TableHead>
-            <TableHead>Campaign</TableHead>
-            <TableHead>Last Activity</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {prospects.map((prospect) => (
-            <TableRow key={prospect.id}>
-              <TableCell>{prospect.name}</TableCell>
-              <TableCell>{prospect.company}</TableCell>
-              <TableCell>{prospect.campaign}</TableCell>
-              <TableCell>{prospect.lastActivity}</TableCell>
-              <TableCell>
-                <Button onClick={() => handleProspectClick(prospect)}>View Details</Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      {selectedProspect && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Prospect Details</h2>
-          <p>Name: {selectedProspect.name}</p>
-          <p>Company: {selectedProspect.company}</p>
-          <p>Campaign: {selectedProspect.campaign}</p>
-          <p>Last Activity: {selectedProspect.lastActivity}</p>
-          {/* Add more details as needed */}
-        </div>
-      )}
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Prospects</h1>
+      <Card>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Organisation</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Active Campaign</TableHead>
+                <TableHead>Last Activity</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {dummyProspects.map((prospect) => (
+                <TableRow key={prospect.id}>
+                  <TableCell>{prospect.name}</TableCell>
+                  <TableCell>{prospect.organisation}</TableCell>
+                  <TableCell>{prospect.title}</TableCell>
+                  <TableCell>{prospect.email}</TableCell>
+                  <TableCell>{prospect.activeCampaign}</TableCell>
+                  <TableCell>{prospect.lastActivity}</TableCell>
+                  <TableCell>{prospect.status}</TableCell>
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button onClick={() => handleProspectClick(prospect)}>View Details</Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl">
+                        <DialogHeader>
+                          <DialogTitle>Prospect Details</DialogTitle>
+                        </DialogHeader>
+                        <ScrollArea className="h-[600px] pr-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <Card>
+                              <CardHeader>
+                                <CardTitle>Personal Information</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <p><strong>Name:</strong> {prospect.firstName} {prospect.lastName}</p>
+                                <p><strong>Email:</strong> {prospect.email}</p>
+                                <p><strong>Phone:</strong> {prospect.phone}</p>
+                                <p><strong>LinkedIn:</strong> <a href={prospect.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{prospect.linkedinUrl}</a></p>
+                                <p><strong>LinkedIn Headline:</strong> {prospect.linkedinHeadline}</p>
+                                <p><strong>LinkedIn Summary:</strong> {prospect.linkedinSummary}</p>
+                                <p><strong>Location:</strong> {prospect.location}</p>
+                                <p><strong>Connections:</strong> {prospect.connections}</p>
+                                <p><strong>Followers:</strong> {prospect.followerCount}</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardHeader>
+                                <CardTitle>Organisation Information</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <p><strong>Name:</strong> {prospect.organisation}</p>
+                                <p><strong>LinkedIn:</strong> <a href={prospect.organisationLinkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{prospect.organisationLinkedinUrl}</a></p>
+                                <p><strong>Website:</strong> <a href={prospect.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{prospect.website}</a></p>
+                                <p><strong>Description:</strong> {prospect.organisationDescription}</p>
+                                <p><strong>Industry:</strong> {prospect.industry}</p>
+                                <p><strong>Location:</strong> {prospect.organisationLocation}</p>
+                                <p><strong>Employee Count:</strong> {prospect.employeeCount}</p>
+                                <p><strong>Size:</strong> {prospect.size}</p>
+                                <p><strong>Type:</strong> {prospect.type}</p>
+                                <p><strong>Followers:</strong> {prospect.organisationFollowerCount}</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                          <Card className="mt-4">
+                            <CardHeader>
+                              <CardTitle>Activity Stream</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <ul className="space-y-2">
+                                {prospect.activityStream.map((activity, index) => (
+                                  <li key={index} className="flex justify-between">
+                                    <span>{activity.action}</span>
+                                    <span className="text-gray-500">{activity.date}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </CardContent>
+                          </Card>
+                        </ScrollArea>
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 };
