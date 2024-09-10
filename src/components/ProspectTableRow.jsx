@@ -3,7 +3,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { PopOutIcon, CheckIcon, XIcon } from 'lucide-react';
+import { ExternalLink, CheckIcon, XIcon } from 'lucide-react';
 import { getStatusColor } from '../utils/prospectUtils';
 import ProspectDetails from './ProspectDetails';
 
@@ -53,7 +53,7 @@ const ProspectTableRow = ({ prospect, handleApprove, handleRemove }) => {
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" size="sm">
-              <PopOutIcon className="h-4 w-4" />
+              <ExternalLink className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl">
