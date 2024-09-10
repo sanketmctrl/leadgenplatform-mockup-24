@@ -32,11 +32,27 @@ const DashboardPage = () => {
 
   // Mock data generation functions
   const generatePerformanceData = (campaign, channel) => {
-    // ... (keep the existing implementation)
+    // Implement mock data generation logic here
+    return {
+      newConnections: Math.floor(Math.random() * 100),
+      repliesReceived: Math.floor(Math.random() * 50),
+      positiveRepliesReceived: Math.floor(Math.random() * 25)
+    };
   };
 
   const generateDailyData = (campaign, channel, startDate, endDate) => {
-    // ... (keep the existing implementation)
+    const data = [];
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      data.push({
+        date: format(currentDate, 'yyyy-MM-dd'),
+        newConnections: Math.floor(Math.random() * 10),
+        repliesReceived: Math.floor(Math.random() * 5),
+        positiveRepliesReceived: Math.floor(Math.random() * 3)
+      });
+      currentDate = subDays(currentDate, -1);
+    }
+    return data;
   };
 
   const getDateRangeForTimePeriod = (period) => {
@@ -60,8 +76,10 @@ const DashboardPage = () => {
         startDate = new Date(2020, 0, 1); // Arbitrary start date
         break;
       case 'Custom Date Range':
-        startDate = customDateRange.start || subDays(endDate, 29);
-        return { startDate, endDate: customDateRange.end || endDate };
+        return { 
+          startDate: customDateRange.start || subDays(endDate, 29),
+          endDate: customDateRange.end || endDate
+        };
       default: // 'Last 30 Days'
         startDate = subDays(endDate, 29);
     }
@@ -124,55 +142,154 @@ const DashboardPage = () => {
     );
   };
 
+  const PerformanceAcrossCampaigns = () => (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Performance Across Campaigns</h2>
+      <div className="flex space-x-4">
+        <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select Campaign" />
+          </SelectTrigger>
+          <SelectContent>
+            {campaigns.map((campaign) => (
+              <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={selectedChannel} onValueChange={setSelectedChannel}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select Channel" />
+          </SelectTrigger>
+          <SelectContent>
+            {channels.map((channel) => (
+              <SelectItem key={channel} value={channel}>{channel}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {Object.entries(performanceData).map(([key, value]) => (
+          <Card key={key} className={getColorClass(key)}>
+            <CardContent className="p-4">
+              <h3 className="text-sm font-semibold mb-1 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</h3>
+              <p className="text-2xl font-bold">{calculatePercentage(value, 100)}</p>
+              <p className="text-lg">{value}</p>
+              <ComparisonWidget 
+                metric={key}
+                value={value}
+                average={averagePerformance[key]}
+              />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
+  const PerformanceChart = () => (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Performance Over Time</h2>
+      <div className="flex space-x-4 items-center">
+        <Select value={selectedTimePeriod} onValueChange={setSelectedTimePeriod}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select Time Period" />
+          </SelectTrigger>
+          <SelectContent>
+            {['Last 7 Days', 'Last 14 Days', 'Last 30 Days', 'Last Month', 'Last 6 Months', 'All Time', 'Custom Date Range'].map((period) => (
+              <SelectItem key={period} value={period}>{period}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {selectedTimePeriod === 'Custom Date Range' && (
+          <div className="flex space-x-2">
+            <DatePicker
+              selected={customDateRange.start}
+              onSelect={(date) => setCustomDateRange(prev => ({ ...prev, start: date }))}
+              placeholderText="Start Date"
+            />
+            <DatePicker
+              selected={customDateRange.end}
+              onSelect={(date) => setCustomDateRange(prev => ({ ...prev, end: date }))}
+              placeholderText="End Date"
+            />
+          </div>
+        )}
+      </div>
+      <Card>
+        <CardContent className="p-4">
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={dailyPerformanceData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Area type="monotone" dataKey="newConnections" stackId="1" stroke="#040056" fill="#040056" />
+              <Area type="monotone" dataKey="repliesReceived" stackId="1" stroke="#63CDFF" fill="#63CDFF" />
+              <Area type="monotone" dataKey="positiveRepliesReceived" stackId="1" stroke="#00FFE0" fill="#00FFE0" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const BestPerformingSection = () => (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Best Performing</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-lg font-semibold mb-2">Top Campaigns</h3>
+            <ScrollArea className="h-48">
+              {bestCampaigns.map((campaign, index) => (
+                <div key={index} className="mb-2">
+                  <p className="font-semibold">{campaign.name}</p>
+                  <p className="text-sm text-gray-600">{campaign.positiveReplyRate} positive reply rate</p>
+                  <p className="text-sm text-gray-500">{campaign.description}</p>
+                </div>
+              ))}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-lg font-semibold mb-2">Top Messages</h3>
+            <ScrollArea className="h-48">
+              {bestMessages.map((message, index) => (
+                <div key={index} className="mb-2">
+                  <p className="font-semibold">{message.content}</p>
+                  <p className="text-sm text-gray-600">{message.positiveReplyRate} positive reply rate</p>
+                </div>
+              ))}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-lg font-semibold mb-2">Recent Opportunities</h3>
+            <ScrollArea className="h-48">
+              {opportunities.map((opportunity, index) => (
+                <div key={index} className="mb-2">
+                  <p className="font-semibold">{opportunity.name} - {opportunity.company}</p>
+                  <p className="text-sm text-gray-600">{opportunity.status}</p>
+                  <p className="text-sm text-gray-500">{opportunity.notes}</p>
+                </div>
+              ))}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      
-      {/* Performance Across Campaigns */}
-      <PerformanceAcrossCampaigns
-        selectedCampaign={selectedCampaign}
-        setSelectedCampaign={setSelectedCampaign}
-        selectedChannel={selectedChannel}
-        setSelectedChannel={setSelectedChannel}
-        performanceData={performanceData}
-        campaigns={campaigns}
-        channels={channels}
-        calculatePercentage={calculatePercentage}
-        getColorClass={getColorClass}
-        averagePerformance={averagePerformance}
-        ComparisonWidget={ComparisonWidget}
-      />
-
-      {/* Performance Chart */}
-      <PerformanceChart
-        selectedTimePeriod={selectedTimePeriod}
-        setSelectedTimePeriod={setSelectedTimePeriod}
-        customDateRange={customDateRange}
-        setCustomDateRange={setCustomDateRange}
-        dailyPerformanceData={dailyPerformanceData}
-        selectedChannel={selectedChannel}
-      />
-
-      {/* Best Performing Campaigns, Messages, and Opportunities */}
-      <BestPerformingSection
-        bestCampaigns={bestCampaigns}
-        bestMessages={bestMessages}
-        opportunities={opportunities}
-      />
+      <PerformanceAcrossCampaigns />
+      <PerformanceChart />
+      <BestPerformingSection />
     </div>
   );
-};
-
-const PerformanceAcrossCampaigns = ({ selectedCampaign, setSelectedCampaign, selectedChannel, setSelectedChannel, performanceData, campaigns, channels, calculatePercentage, getColorClass, averagePerformance, ComparisonWidget }) => {
-  // ... (implement this component)
-};
-
-const PerformanceChart = ({ selectedTimePeriod, setSelectedTimePeriod, customDateRange, setCustomDateRange, dailyPerformanceData, selectedChannel }) => {
-  // ... (implement this component)
-};
-
-const BestPerformingSection = ({ bestCampaigns, bestMessages, opportunities }) => {
-  // ... (implement this component)
 };
 
 export default DashboardPage;
