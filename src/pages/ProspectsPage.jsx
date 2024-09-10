@@ -18,6 +18,8 @@ const ProspectsPage = () => {
   const [statusFilter, setStatusFilter] = useState('All Statuses');
   const [expandedRows, setExpandedRows] = useState({});
   const [selectedProspects, setSelectedProspects] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [prospectsPerPage] = useState(10);
 
   const handleApprove = (id) => {
     setFilteredProspects(prospects => 
@@ -75,10 +77,18 @@ const ProspectsPage = () => {
     }
 
     setFilteredProspects(result);
+    setCurrentPage(1);
   }, [searchTerm, campaignFilter, statusFilter]);
 
   const uniqueCampaigns = ['All Campaigns', ...new Set(dummyProspects.map(p => p.activeCampaign))];
   const uniqueStatuses = ['All Statuses', ...new Set(dummyProspects.map(p => p.status))];
+
+  // Pagination
+  const indexOfLastProspect = currentPage * prospectsPerPage;
+  const indexOfFirstProspect = indexOfLastProspect - prospectsPerPage;
+  const currentProspects = filteredProspects.slice(indexOfFirstProspect, indexOfLastProspect);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="space-y-6">
@@ -152,7 +162,7 @@ const ProspectsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProspects.map((prospect) => (
+              {currentProspects.map((prospect) => (
                 <React.Fragment key={prospect.id}>
                   <TableRow>
                     <TableCell>
@@ -231,6 +241,18 @@ const ProspectsPage = () => {
           </Table>
         </CardContent>
       </Card>
+      <div className="flex justify-center mt-4">
+        {Array.from({ length: Math.ceil(filteredProspects.length / prospectsPerPage) }, (_, i) => (
+          <Button
+            key={i}
+            onClick={() => paginate(i + 1)}
+            variant={currentPage === i + 1 ? "default" : "outline"}
+            className="mx-1"
+          >
+            {i + 1}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 };
