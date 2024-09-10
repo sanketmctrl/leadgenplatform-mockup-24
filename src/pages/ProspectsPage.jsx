@@ -152,12 +152,20 @@ const ProspectsPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Select</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Organisation</TableHead>
-                  <TableHead>Title</TableHead>
+                  <TableHead onClick={() => handleSort('name')} className="cursor-pointer">
+                    Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </TableHead>
+                  <TableHead onClick={() => handleSort('organisation')} className="cursor-pointer">
+                    Organisation {sortConfig.key === 'organisation' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </TableHead>
+                  <TableHead onClick={() => handleSort('title')} className="cursor-pointer">
+                    Title {sortConfig.key === 'title' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </TableHead>
                   <TableHead>LinkedIn</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Active Campaign</TableHead>
+                  <TableHead onClick={() => handleSort('activeCampaign')} className="cursor-pointer">
+                    Active Campaign {sortConfig.key === 'activeCampaign' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </TableHead>
                   <TableHead onClick={() => handleSort('status')} className="cursor-pointer">
                     Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
                   </TableHead>
