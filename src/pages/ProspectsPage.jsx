@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 const dummyProspects = [
   {
@@ -14,8 +15,7 @@ const dummyProspects = [
     linkedinUrl: "https://linkedin.com/in/johndoe",
     email: "john.doe@techcorp.com",
     activeCampaign: "Summer Outreach",
-    lastActivity: "Connection request sent",
-    status: "Connection Request Sent",
+    status: "Connected",
     firstName: "John",
     lastName: "Doe",
     phone: "+1 123-456-7890",
@@ -43,6 +43,17 @@ const dummyProspects = [
   // ... Add 19 more dummy prospects here with similar structure but different data
 ];
 
+const getStatusColor = (status) => {
+  const positiveStatuses = ["Connected", "Meeting Request", "Interested", "Pricing Request", "Referral to Colleague", "Future Interest"];
+  const neutralStatuses = ["No Active Campaign", "Sequenced", "Connection Request Sent", "Awaiting Reply", "Needs More Information", "Neutral", "Out of Office", "Other", "N/A"];
+  const negativeStatuses = ["Left Company", "Wrong Person", "Not Interested", "Unsubscribe/Do Not Contact"];
+
+  if (positiveStatuses.includes(status)) return "bg-green-100 text-green-800";
+  if (neutralStatuses.includes(status)) return "bg-yellow-100 text-yellow-800";
+  if (negativeStatuses.includes(status)) return "bg-red-100 text-red-800";
+  return "bg-gray-100 text-gray-800";
+};
+
 const ProspectsPage = () => {
   const [selectedProspect, setSelectedProspect] = useState(null);
 
@@ -61,9 +72,9 @@ const ProspectsPage = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Organisation</TableHead>
                 <TableHead>Title</TableHead>
+                <TableHead>LinkedIn</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Active Campaign</TableHead>
-                <TableHead>Last Activity</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Action</TableHead>
               </TableRow>
@@ -74,10 +85,20 @@ const ProspectsPage = () => {
                   <TableCell>{prospect.name}</TableCell>
                   <TableCell>{prospect.organisation}</TableCell>
                   <TableCell>{prospect.title}</TableCell>
-                  <TableCell>{prospect.email}</TableCell>
+                  <TableCell>
+                    <a href={prospect.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                      LinkedIn Profile
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <a href={`mailto:${prospect.email}`} className="text-blue-500 hover:underline">
+                      {prospect.email}
+                    </a>
+                  </TableCell>
                   <TableCell>{prospect.activeCampaign}</TableCell>
-                  <TableCell>{prospect.lastActivity}</TableCell>
-                  <TableCell>{prospect.status}</TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(prospect.status)}>{prospect.status}</Badge>
+                  </TableCell>
                   <TableCell>
                     <Dialog>
                       <DialogTrigger asChild>
@@ -95,7 +116,7 @@ const ProspectsPage = () => {
                               </CardHeader>
                               <CardContent>
                                 <p><strong>Name:</strong> {prospect.firstName} {prospect.lastName}</p>
-                                <p><strong>Email:</strong> {prospect.email}</p>
+                                <p><strong>Email:</strong> <a href={`mailto:${prospect.email}`} className="text-blue-500 hover:underline">{prospect.email}</a></p>
                                 <p><strong>Phone:</strong> {prospect.phone}</p>
                                 <p><strong>LinkedIn:</strong> <a href={prospect.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{prospect.linkedinUrl}</a></p>
                                 <p><strong>LinkedIn Headline:</strong> {prospect.linkedinHeadline}</p>
