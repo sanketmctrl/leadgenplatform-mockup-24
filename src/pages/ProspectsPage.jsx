@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PopOutIcon, CheckIcon, XIcon } from 'lucide-react';
+import { ExternalLink, CheckIcon, XIcon } from 'lucide-react';
 
 import { dummyProspects, getStatusColor } from '../utils/prospectUtils';
 import ProspectDetails from '../components/ProspectDetails';
