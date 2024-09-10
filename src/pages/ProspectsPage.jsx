@@ -1,40 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ExternalLink, CheckIcon, XIcon } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 
-import { dummyProspects, getStatusColor } from '../utils/prospectUtils';
+import { dummyProspects, getStatusColor, getActivityColor } from '../utils/prospectUtils';
 import ProspectDetails from '../components/ProspectDetails';
-import ProspectTableHeader from '../components/ProspectTableHeader';
-import ProspectTableRow from '../components/ProspectTableRow';
-import ProspectFilters from '../components/ProspectFilters';
 
 const ProspectsPage = () => {
-  const [prospects, setProspects] = useState(dummyProspects);
-  const [filteredProspects, setFilteredProspects] = useState(prospects);
+  const [selectedProspect, setSelectedProspect] = useState(null);
+  const [filteredProspects, setFilteredProspects] = useState(dummyProspects);
   const [searchTerm, setSearchTerm] = useState('');
   const [campaignFilter, setCampaignFilter] = useState('All Campaigns');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
+  const [expandedRows, setExpandedRows] = useState({});
 
-  const handleApprove = (id) => {
-    const updatedProspects = prospects.map(prospect => 
-      prospect.id === id ? { ...prospect, status: 'Sequenced' } : prospect
-    );
-    setProspects(updatedProspects);
+  const handleProspectClick = (prospect) => {
+    setSelectedProspect(prospect);
   };
 
-  const handleRemove = (id) => {
-    const updatedProspects = prospects.filter(prospect => prospect.id !== id);
-    setProspects(updatedProspects);
+  const handleApprove = (id) => {
+    const updatedProspects = dummyProspects.map(prospect => 
+      prospect.id === id ? { ...prospect, status: 'Sequenced' } : prospect
+    );
+    setFilteredProspects(updatedProspects);
+  };
+
+  const toggleRowExpansion = (id) => {
+    setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   useEffect(() => {
-    let result = prospects;
+    let result = dummyProspects;
 
     if (searchTerm) {
       result = result.filter(prospect => 
@@ -53,36 +55,104 @@ const ProspectsPage = () => {
     }
 
     setFilteredProspects(result);
-  }, [searchTerm, campaignFilter, statusFilter, prospects]);
+  }, [searchTerm, campaignFilter, statusFilter]);
 
-  const uniqueCampaigns = ['All Campaigns', ...new Set(prospects.map(p => p.activeCampaign))];
-  const uniqueStatuses = ['All Statuses', ...new Set(prospects.map(p => p.status))];
+  const uniqueCampaigns = ['All Campaigns', ...new Set(dummyProspects.map(p => p.activeCampaign))];
+  const uniqueStatuses = ['All Statuses', ...new Set(dummyProspects.map(p => p.status))];
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Prospects</h1>
-      <ProspectFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        campaignFilter={campaignFilter}
-        setCampaignFilter={setCampaignFilter}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        uniqueCampaigns={uniqueCampaigns}
-        uniqueStatuses={uniqueStatuses}
-      />
+      <div className="flex space-x-4 mb-4">
+        <Input
+          placeholder="Search names, job titles, organisations..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Select value={campaignFilter} onValueChange={setCampaignFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by campaign" />
+          </SelectTrigger>
+          <SelectContent>
+            {uniqueCampaigns.map((campaign) => (
+              <SelectItem key={campaign} value={campaign}>{campaign}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            {uniqueStatuses.map((status) => (
+              <SelectItem key={status} value={status}>{status}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <Card>
         <CardContent>
           <Table>
-            <ProspectTableHeader />
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Organisation</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>LinkedIn</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Active Campaign</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
             <TableBody>
               {filteredProspects.map((prospect) => (
-                <ProspectTableRow
-                  key={prospect.id}
-                  prospect={prospect}
-                  handleApprove={handleApprove}
-                  handleRemove={handleRemove}
-                />
+                <React.Fragment key={prospect.id}>
+                  <TableRow>
+                    <TableCell>{prospect.name}</TableCell>
+                    <TableCell>{prospect.organisation}</TableCell>
+                    <TableCell>{prospect.title}</TableCell>
+                    <TableCell>
+                      <a href={prospect.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                        LinkedIn Profile
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      <a href={`mailto:${prospect.email}`} className="text-blue-500 hover:underline">
+                        {prospect.email}
+                      </a>
+                    </TableCell>
+                    <TableCell>{prospect.activeCampaign}</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(prospect.status)}>{prospect.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {prospect.status === 'For Approval' && (
+                        <Button onClick={() => handleApprove(prospect.id)}>
+                          Approve
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleRowExpansion(prospect.id)}
+                      >
+                        {expandedRows[prospect.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  {expandedRows[prospect.id] && (
+                    <TableRow>
+                      <TableCell colSpan={9}>
+                        <ProspectDetails prospect={prospect} />
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>
