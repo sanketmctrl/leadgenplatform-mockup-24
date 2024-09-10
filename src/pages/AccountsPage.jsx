@@ -1,55 +1,95 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import AccountProspects from '../components/AccountProspects';
+import { dummyAccounts } from '../utils/dummyData';
 
 const AccountsPage = () => {
-  const [accounts] = useState([
-    { id: 1, name: "Tech Corp", industry: "Technology", prospects: ["John Doe", "Alice Brown"] },
-    { id: 2, name: "Innovate Inc", industry: "Software", prospects: ["Jane Smith", "Charlie Davis"] },
-    { id: 3, name: "Global Solutions", industry: "Consulting", prospects: ["Bob Johnson", "Eva Wilson"] },
-  ]);
+  const [accounts, setAccounts] = useState(dummyAccounts);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expandedRows, setExpandedRows] = useState({});
 
-  const [selectedAccount, setSelectedAccount] = useState(null);
+  const filteredAccounts = accounts.filter(account =>
+    account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    account.industry.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const handleAccountClick = (account) => {
-    setSelectedAccount(account);
+  const toggleRowExpansion = (id) => {
+    setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Accounts</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {accounts.map((account) => (
-          <Card key={account.id} className="cursor-pointer" onClick={() => handleAccountClick(account)}>
-            <CardHeader>
-              <CardTitle>{account.name}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Industry: {account.industry}</p>
-              <p>Prospects: {account.prospects.length}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      {selectedAccount && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Prospects for {selectedAccount.name}</h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {selectedAccount.prospects.map((prospect, index) => (
-                <TableRow key={index}>
-                  <TableCell>{prospect}</TableCell>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Accounts</h1>
+      <Input
+        placeholder="Search accounts..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="max-w-sm mb-4"
+      />
+      <Card>
+        <CardContent>
+          <ScrollArea className="h-[600px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Industry</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead>Employee Count</TableHead>
+                  <TableHead>Website</TableHead>
+                  <TableHead>LinkedIn</TableHead>
+                  <TableHead>Prospects</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+              </TableHeader>
+              <TableBody>
+                {filteredAccounts.map((account) => (
+                  <React.Fragment key={account.id}>
+                    <TableRow>
+                      <TableCell>{account.name}</TableCell>
+                      <TableCell>{account.industry}</TableCell>
+                      <TableCell>{account.size}</TableCell>
+                      <TableCell>{account.employeeCount}</TableCell>
+                      <TableCell>
+                        <a href={account.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          Website
+                        </a>
+                      </TableCell>
+                      <TableCell>
+                        <a href={account.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          LinkedIn
+                        </a>
+                      </TableCell>
+                      <TableCell>{account.prospects.length}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleRowExpansion(account.id)}
+                        >
+                          {expandedRows[account.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    {expandedRows[account.id] && (
+                      <TableRow>
+                        <TableCell colSpan={8}>
+                          <AccountProspects prospects={account.prospects} />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </CardContent>
+      </Card>
     </div>
   );
 };
