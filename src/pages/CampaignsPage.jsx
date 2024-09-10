@@ -1,18 +1,38 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 
 const CampaignsPage = () => {
   const [campaigns] = useState([
-    { id: 1, name: "Summer Outreach", prospects: 500, connected: 150, messagesSent: 450, replies: 75, positiveReplies: 30 },
-    { id: 2, name: "Q4 Sales Push", prospects: 750, connected: 200, messagesSent: 600, replies: 100, positiveReplies: 45 },
-    { id: 3, name: "New Product Launch", prospects: 1000, connected: 300, messagesSent: 900, replies: 150, positiveReplies: 60 },
+    {
+      id: 1,
+      name: "Summer Outreach",
+      totalProspects: 1000,
+      prospectsSequenced: 800,
+      connectionRequestsSent: 600,
+      prospectsMessaged: 750,
+      newConnections: 450,
+      repliesReceived: 200,
+      positiveRepliesReceived: 100
+    },
+    {
+      id: 2,
+      name: "Q4 Sales Push",
+      totalProspects: 1500,
+      prospectsSequenced: 1200,
+      connectionRequestsSent: 900,
+      prospectsMessaged: 1100,
+      newConnections: 700,
+      repliesReceived: 300,
+      positiveRepliesReceived: 150
+    },
   ]);
 
-  const [selectedCampaign, setSelectedCampaign] = useState(null);
-
-  const handleCampaignClick = (campaign) => {
-    setSelectedCampaign(campaign);
+  const averagePerformance = {
+    newConnections: 75,
+    repliesReceived: 25,
+    positiveRepliesReceived: 12
   };
 
   const calculatePercentage = (value, total) => {
@@ -21,63 +41,71 @@ const CampaignsPage = () => {
 
   const getColorClass = (metric) => {
     switch(metric) {
-      case 'connected': return 'bg-main-blue text-white';
-      case 'messagesSent': return 'bg-purple text-white';
-      case 'replies': return 'bg-sky-blue text-white';
-      case 'positiveReplies': return 'bg-light-blue text-main-blue';
-      case 'prospects': return 'text-main-blue';
-      default: return 'bg-gray-200';
+      case 'newConnections': return 'bg-main-blue text-white';
+      case 'repliesReceived': return 'bg-sky-blue text-white';
+      case 'positiveRepliesReceived': return 'bg-[#00FFE0] text-main-blue';
+      default: return 'bg-gray-100 text-main-blue';
     }
   };
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Campaigns</h1>
-      <div className="space-y-4">
-        {campaigns.map((campaign) => (
-          <Card key={campaign.id} className="cursor-pointer" onClick={() => handleCampaignClick(campaign)}>
-            <CardContent className="p-6">
-              <h2 className="text-xl font-bold mb-4">{campaign.name}</h2>
-              <div className="grid grid-cols-5 gap-4">
-                {['prospects', 'connected', 'messagesSent', 'replies', 'positiveReplies'].map((metric) => (
-                  <div key={metric} className={`p-4 rounded-lg ${getColorClass(metric)}`}>
-                    <p className="font-semibold">{metric.charAt(0).toUpperCase() + metric.slice(1).replace(/([A-Z])/g, ' $1').trim()}</p>
-                    <p className="text-2xl font-bold">{campaign[metric]}</p>
-                    {metric !== 'prospects' && <p>{calculatePercentage(campaign[metric], campaign.prospects)}</p>}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+  const ComparisonWidget = ({ metric, value, average }) => {
+    const difference = value - average;
+    const isAbove = difference > 0;
+    return (
+      <div className={`flex items-center ${isAbove ? 'text-green-500' : 'text-red-500'}`}>
+        {isAbove ? <ArrowUpIcon className="w-3 h-3 mr-1" /> : <ArrowDownIcon className="w-3 h-3 mr-1" />}
+        <span className="text-xs">{Math.abs(difference).toFixed(1)} ppts</span>
+        <span className="ml-1 text-xs text-gray-500">({average}% avg)</span>
       </div>
-      {selectedCampaign && (
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Message Templates for {selectedCampaign.name}</h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Step</TableHead>
-                <TableHead>Template</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell>1</TableCell>
-                <TableCell>Hi {{name}}, I noticed you're in {{industry}}. Our product might be a great fit...</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>2</TableCell>
-                <TableCell>{{name}}, just following up on my previous message. Have you had a chance to consider...</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>3</TableCell>
-                <TableCell>Last touch - {{name}}, I wanted to share a case study that might be relevant to your role at {{company}}...</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+    );
+  };
+
+  return (
+    <div className="space-y-8">
+      <h1 className="text-2xl font-bold mb-4">Campaigns</h1>
+      {campaigns.map((campaign) => (
+        <div key={campaign.id} className="relative bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">{campaign.name}</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            {['totalProspects', 'prospectsSequenced', 'connectionRequestsSent', 'prospectsMessaged'].map((key) => (
+              <Card key={key} className="bg-gray-100">
+                <CardContent className="p-3">
+                  <h3 className="text-xs sm:text-sm font-semibold mb-1 text-main-blue capitalize">{key.split(/(?=[A-Z])/).join(' ')}</h3>
+                  <p className="text-xl sm:text-2xl font-bold text-main-blue">
+                    {campaign[key]}
+                    {key === 'prospectsSequenced' && (
+                      <span className="text-sm sm:text-base ml-1 sm:ml-2">
+                        ({calculatePercentage(campaign.prospectsSequenced, campaign.totalProspects)})
+                      </span>
+                    )}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { key: 'newConnections', total: 'connectionRequestsSent', label: 'New Connections' },
+              { key: 'repliesReceived', total: 'prospectsMessaged', label: 'Prospects Replied' },
+              { key: 'positiveRepliesReceived', total: 'prospectsMessaged', label: 'Positive Prospect Replies' }
+            ].map(({ key, total, label }) => (
+              <Card key={key} className={getColorClass(key)}>
+                <CardContent className="p-3">
+                  <h3 className="text-sm font-semibold mb-1 capitalize">{label}</h3>
+                  <p className="text-xl sm:text-2xl font-bold">{calculatePercentage(campaign[key], campaign[total])}</p>
+                  <p className="text-base sm:text-lg">{campaign[key]}</p>
+                  <ComparisonWidget 
+                    metric={key}
+                    value={parseFloat(calculatePercentage(campaign[key], campaign[total]))}
+                    average={averagePerformance[key]}
+                  />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Button className="absolute top-4 right-4">View Details</Button>
         </div>
-      )}
+      ))}
     </div>
   );
 };
