@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { dummyProspects, getStatusColor } from '../utils/prospectUtils';
 import ProspectDetails from '../components/ProspectDetails';
@@ -18,21 +17,42 @@ const ProspectsPage = () => {
   const [campaignFilter, setCampaignFilter] = useState('All Campaigns');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
   const [expandedRows, setExpandedRows] = useState({});
+  const [selectedProspects, setSelectedProspects] = useState({});
 
   const handleApprove = (id) => {
-    const updatedProspects = filteredProspects.map(prospect => 
-      prospect.id === id ? { ...prospect, status: 'Sequenced' } : prospect
+    setFilteredProspects(prospects => 
+      prospects.map(prospect => 
+        prospect.id === id ? { ...prospect, status: 'Sequenced' } : prospect
+      )
     );
-    setFilteredProspects(updatedProspects);
   };
 
   const handleRemove = (id) => {
-    const updatedProspects = filteredProspects.filter(prospect => prospect.id !== id);
-    setFilteredProspects(updatedProspects);
+    setFilteredProspects(prospects => prospects.filter(prospect => prospect.id !== id));
   };
 
   const toggleRowExpansion = (id) => {
     setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleProspectSelection = (id) => {
+    setSelectedProspects(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleBulkAction = (action) => {
+    const selectedIds = Object.keys(selectedProspects).filter(id => selectedProspects[id]);
+    if (action === 'remove') {
+      setFilteredProspects(prospects => prospects.filter(prospect => !selectedIds.includes(prospect.id.toString())));
+    } else if (action === 'approve') {
+      setFilteredProspects(prospects => 
+        prospects.map(prospect => 
+          selectedIds.includes(prospect.id.toString()) && prospect.status === 'For Approval'
+            ? { ...prospect, status: 'Sequenced' }
+            : prospect
+        )
+      );
+    }
+    setSelectedProspects({});
   };
 
   useEffect(() => {
@@ -91,11 +111,34 @@ const ProspectsPage = () => {
           </SelectContent>
         </Select>
       </div>
+      <div className="flex space-x-4 mb-4">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive">Bulk Remove</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently remove the selected prospects from your list.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => handleBulkAction('remove')}>
+                Yes, remove prospects
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <Button onClick={() => handleBulkAction('approve')}>Bulk Approve</Button>
+      </div>
       <Card>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Select</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Organisation</TableHead>
                 <TableHead>Title</TableHead>
@@ -112,6 +155,12 @@ const ProspectsPage = () => {
               {filteredProspects.map((prospect) => (
                 <React.Fragment key={prospect.id}>
                   <TableRow>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedProspects[prospect.id] || false}
+                        onCheckedChange={() => toggleProspectSelection(prospect.id)}
+                      />
+                    </TableCell>
                     <TableCell>{prospect.name}</TableCell>
                     <TableCell>{prospect.organisation}</TableCell>
                     <TableCell>{prospect.title}</TableCell>
@@ -127,7 +176,9 @@ const ProspectsPage = () => {
                     </TableCell>
                     <TableCell>{prospect.activeCampaign}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(prospect.status)}>{prospect.status}</Badge>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(prospect.status)}`}>
+                        {prospect.status}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <AlertDialog>
@@ -169,7 +220,7 @@ const ProspectsPage = () => {
                   </TableRow>
                   {expandedRows[prospect.id] && (
                     <TableRow>
-                      <TableCell colSpan={10}>
+                      <TableCell colSpan={11}>
                         <ProspectDetails prospect={prospect} />
                       </TableCell>
                     </TableRow>
