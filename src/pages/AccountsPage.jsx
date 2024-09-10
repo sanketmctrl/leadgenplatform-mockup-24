@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import AccountProspects from '../components/AccountProspects';
-import { dummyAccounts } from '../utils/dummyData';
+import { dummyCompanies, getProspectsByCompanyId } from '../utils/dummyData';
 
 const AccountsPage = () => {
-  const [accounts, setAccounts] = useState(dummyAccounts);
+  const [accounts] = useState(dummyCompanies);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedRows, setExpandedRows] = useState({});
 
@@ -65,7 +65,7 @@ const AccountsPage = () => {
                           LinkedIn
                         </a>
                       </TableCell>
-                      <TableCell>{account.prospects.length}</TableCell>
+                      <TableCell>{getProspectsByCompanyId(account.id).length}</TableCell>
                       <TableCell>
                         <Button
                           variant="ghost"
@@ -79,7 +79,7 @@ const AccountsPage = () => {
                     {expandedRows[account.id] && (
                       <TableRow>
                         <TableCell colSpan={8}>
-                          <AccountProspects prospects={account.prospects} />
+                          <AccountProspects prospects={getProspectsByCompanyId(account.id)} />
                         </TableCell>
                       </TableRow>
                     )}

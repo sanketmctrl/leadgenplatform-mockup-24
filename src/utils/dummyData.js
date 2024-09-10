@@ -1,73 +1,175 @@
-export const dummyProspects = [
-  // ... (existing prospects data)
-];
-
-export const dummyAccounts = [
+export const dummyCompanies = [
   {
     id: 1,
-    name: "Tech Corp",
+    name: "TechCorp",
     industry: "Information Technology",
     size: "Large Enterprise",
     employeeCount: "1001-5000",
     website: "https://www.techcorp.com",
     linkedinUrl: "https://www.linkedin.com/company/techcorp",
-    prospects: [
-      {
-        id: 1,
-        name: "John Doe",
-        title: "Software Engineer",
-        linkedinUrl: "https://www.linkedin.com/in/johndoe",
-        email: "john.doe@techcorp.com",
-        activeCampaign: "Summer Outreach",
-        status: "For Approval",
-        // ... (other prospect details)
-      },
-      // ... (add more prospects for this account)
-    ],
   },
   {
     id: 2,
-    name: "Innovate Inc",
-    industry: "Technology",
+    name: "InnovateInc",
+    industry: "Software Development",
     size: "Mid-Market",
     employeeCount: "501-1000",
     website: "https://www.innovateinc.com",
     linkedinUrl: "https://www.linkedin.com/company/innovateinc",
-    prospects: [
-      {
-        id: 2,
-        name: "Jane Smith",
-        title: "Product Manager",
-        linkedinUrl: "https://www.linkedin.com/in/janesmith",
-        email: "jane.smith@innovateinc.com",
-        activeCampaign: "Q4 Sales Push",
-        status: "Connected",
-        // ... (other prospect details)
-      },
-      // ... (add more prospects for this account)
-    ],
   },
   {
     id: 3,
-    name: "Global Solutions",
+    name: "GlobalSolutions",
     industry: "Business Services",
     size: "Enterprise",
     employeeCount: "5001-10000",
     website: "https://www.globalsolutions.com",
     linkedinUrl: "https://www.linkedin.com/company/globalsolutions",
-    prospects: [
-      {
-        id: 3,
-        name: "Bob Johnson",
-        title: "Sales Director",
-        linkedinUrl: "https://www.linkedin.com/in/bobjohnson",
-        email: "bob.johnson@globalsolutions.com",
-        activeCampaign: "New Product Launch",
-        status: "Meeting Scheduled",
-        // ... (other prospect details)
-      },
-      // ... (add more prospects for this account)
+  },
+];
+
+export const dummyProspects = [
+  {
+    id: 1,
+    name: "John Doe",
+    title: "Software Engineer",
+    companyId: 1,
+    linkedinUrl: "https://www.linkedin.com/in/johndoe",
+    email: "john.doe@techcorp.com",
+    activeCampaign: "Summer Outreach",
+    status: "For Approval",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-06-01" },
+      { action: "Connection request sent", date: "2023-06-02" },
     ],
   },
-  // ... (add more accounts with their respective prospects)
+  {
+    id: 2,
+    name: "Jane Smith",
+    title: "Product Manager",
+    companyId: 2,
+    linkedinUrl: "https://www.linkedin.com/in/janesmith",
+    email: "jane.smith@innovateinc.com",
+    activeCampaign: "Q4 Sales Push",
+    status: "Connected",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-09-15" },
+      { action: "Connection accepted", date: "2023-09-18" },
+    ],
+  },
+  {
+    id: 3,
+    name: "Bob Johnson",
+    title: "Sales Director",
+    companyId: 3,
+    linkedinUrl: "https://www.linkedin.com/in/bobjohnson",
+    email: "bob.johnson@globalsolutions.com",
+    activeCampaign: "New Product Launch",
+    status: "Meeting Scheduled",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-10-01" },
+      { action: "Meeting request sent", date: "2023-10-05" },
+    ],
+  },
+  {
+    id: 4,
+    name: "Alice Brown",
+    title: "Marketing Specialist",
+    companyId: 1,
+    linkedinUrl: "https://www.linkedin.com/in/alicebrown",
+    email: "alice.brown@techcorp.com",
+    activeCampaign: "Summer Outreach",
+    status: "Interested",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-06-10" },
+      { action: "Positive reply received", date: "2023-06-15" },
+    ],
+  },
+  {
+    id: 5,
+    name: "Charlie Wilson",
+    title: "CTO",
+    companyId: 2,
+    linkedinUrl: "https://www.linkedin.com/in/charliewilson",
+    email: "charlie.wilson@innovateinc.com",
+    activeCampaign: "Q4 Sales Push",
+    status: "Not Interested",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-09-20" },
+      { action: "Negative reply received", date: "2023-09-25" },
+    ],
+  },
+  {
+    id: 6,
+    name: "Diana Lee",
+    title: "HR Manager",
+    companyId: 3,
+    linkedinUrl: "https://www.linkedin.com/in/dianalee",
+    email: "diana.lee@globalsolutions.com",
+    activeCampaign: "New Product Launch",
+    status: "Awaiting Reply",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-10-10" },
+      { action: "Message sent", date: "2023-10-12" },
+    ],
+  },
+  {
+    id: 7,
+    name: "Ethan Green",
+    title: "Data Scientist",
+    companyId: 1,
+    linkedinUrl: "https://www.linkedin.com/in/ethangreen",
+    email: "ethan.green@techcorp.com",
+    activeCampaign: "Summer Outreach",
+    status: "Connected",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-06-20" },
+      { action: "Connection accepted", date: "2023-06-22" },
+    ],
+  },
+  {
+    id: 8,
+    name: "Fiona White",
+    title: "Product Designer",
+    companyId: 2,
+    linkedinUrl: "https://www.linkedin.com/in/fionawhite",
+    email: "fiona.white@innovateinc.com",
+    activeCampaign: "Q4 Sales Push",
+    status: "Meeting Scheduled",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-09-25" },
+      { action: "Meeting scheduled", date: "2023-10-01" },
+    ],
+  },
+  {
+    id: 9,
+    name: "George Taylor",
+    title: "Business Analyst",
+    companyId: 3,
+    linkedinUrl: "https://www.linkedin.com/in/georgetaylor",
+    email: "george.taylor@globalsolutions.com",
+    activeCampaign: "New Product Launch",
+    status: "For Approval",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-10-15" },
+    ],
+  },
+  {
+    id: 10,
+    name: "Hannah Martinez",
+    title: "Software Architect",
+    companyId: 1,
+    linkedinUrl: "https://www.linkedin.com/in/hannahmartinez",
+    email: "hannah.martinez@techcorp.com",
+    activeCampaign: "Summer Outreach",
+    status: "Interested",
+    activityStream: [
+      { action: "Added to campaign", date: "2023-06-25" },
+      { action: "Positive reply received", date: "2023-06-28" },
+    ],
+  },
 ];
+
+export const getCompanyById = (id) => dummyCompanies.find(company => company.id === id);
+
+export const getProspectsByCompanyId = (companyId) => dummyProspects.filter(prospect => prospect.companyId === companyId);
