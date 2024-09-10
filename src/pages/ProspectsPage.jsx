@@ -7,54 +7,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { dummyProspects, getStatusColor } from '../utils/prospectUtils';
+import { dummyProspects, getStatusColor, sortProspects } from '../utils/prospectUtils';
 import ProspectDetails from '../components/ProspectDetails';
 
 const ProspectsPage = () => {
-  const [filteredProspects, setFilteredProspects] = useState(dummyProspects);
+  const [prospects, setProspects] = useState(dummyProspects);
   const [searchTerm, setSearchTerm] = useState('');
   const [campaignFilter, setCampaignFilter] = useState('All Campaigns');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
   const [expandedRows, setExpandedRows] = useState({});
   const [selectedProspects, setSelectedProspects] = useState({});
-  const [currentPage, setCurrentPage] = useState(1);
-  const [prospectsPerPage] = useState(10);
+  const [sortConfig, setSortConfig] = useState({ key: 'status', direction: 'asc' });
 
-  const handleApprove = (id) => {
-    setFilteredProspects(prospects => 
-      prospects.map(prospect => 
-        prospect.id === id ? { ...prospect, status: 'Sequenced' } : prospect
-      )
-    );
-  };
-
-  const handleRemove = (id) => {
-    setFilteredProspects(prospects => prospects.filter(prospect => prospect.id !== id));
-  };
-
-  const toggleRowExpansion = (id) => {
-    setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const toggleProspectSelection = (id) => {
-    setSelectedProspects(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const handleBulkAction = (action) => {
-    const selectedIds = Object.keys(selectedProspects).filter(id => selectedProspects[id]);
-    if (action === 'remove') {
-      setFilteredProspects(prospects => prospects.filter(prospect => !selectedIds.includes(prospect.id.toString())));
-    } else if (action === 'approve') {
-      setFilteredProspects(prospects => 
-        prospects.map(prospect => 
-          selectedIds.includes(prospect.id.toString()) && prospect.status === 'For Approval'
-            ? { ...prospect, status: 'Sequenced' }
-            : prospect
-        )
-      );
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
     }
-    setSelectedProspects({});
+    setSortConfig({ key, direction });
   };
 
   useEffect(() => {
@@ -76,19 +48,49 @@ const ProspectsPage = () => {
       result = result.filter(prospect => prospect.status === statusFilter);
     }
 
-    setFilteredProspects(result);
-    setCurrentPage(1);
-  }, [searchTerm, campaignFilter, statusFilter]);
+    result = sortProspects(result, sortConfig);
+
+    setProspects(result);
+  }, [searchTerm, campaignFilter, statusFilter, sortConfig]);
 
   const uniqueCampaigns = ['All Campaigns', ...new Set(dummyProspects.map(p => p.activeCampaign))];
   const uniqueStatuses = ['All Statuses', ...new Set(dummyProspects.map(p => p.status))];
 
-  // Pagination
-  const indexOfLastProspect = currentPage * prospectsPerPage;
-  const indexOfFirstProspect = indexOfLastProspect - prospectsPerPage;
-  const currentProspects = filteredProspects.slice(indexOfFirstProspect, indexOfLastProspect);
+  const handleApprove = (id) => {
+    setProspects(prospects => 
+      prospects.map(prospect => 
+        prospect.id === id ? { ...prospect, status: 'Sequenced' } : prospect
+      )
+    );
+  };
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const handleRemove = (id) => {
+    setProspects(prospects => prospects.filter(prospect => prospect.id !== id));
+  };
+
+  const toggleRowExpansion = (id) => {
+    setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleProspectSelection = (id) => {
+    setSelectedProspects(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleBulkAction = (action) => {
+    const selectedIds = Object.keys(selectedProspects).filter(id => selectedProspects[id]);
+    if (action === 'remove') {
+      setProspects(prospects => prospects.filter(prospect => !selectedIds.includes(prospect.id.toString())));
+    } else if (action === 'approve') {
+      setProspects(prospects => 
+        prospects.map(prospect => 
+          selectedIds.includes(prospect.id.toString()) && prospect.status === 'For Approval'
+            ? { ...prospect, status: 'Sequenced' }
+            : prospect
+        )
+      );
+    }
+    setSelectedProspects({});
+  };
 
   return (
     <div className="space-y-6">
@@ -145,114 +147,106 @@ const ProspectsPage = () => {
       </div>
       <Card>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Select</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Organisation</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>LinkedIn</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Active Campaign</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Remove</TableHead>
-                <TableHead>Approve</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentProspects.map((prospect) => (
-                <React.Fragment key={prospect.id}>
-                  <TableRow>
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedProspects[prospect.id] || false}
-                        onCheckedChange={() => toggleProspectSelection(prospect.id)}
-                      />
-                    </TableCell>
-                    <TableCell>{prospect.name}</TableCell>
-                    <TableCell>{prospect.organisation}</TableCell>
-                    <TableCell>{prospect.title}</TableCell>
-                    <TableCell>
-                      <a href={prospect.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                        LinkedIn Profile
-                      </a>
-                    </TableCell>
-                    <TableCell>
-                      <a href={`mailto:${prospect.email}`} className="text-blue-500 hover:underline">
-                        {prospect.email}
-                      </a>
-                    </TableCell>
-                    <TableCell>{prospect.activeCampaign}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(prospect.status)}`}>
-                        {prospect.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive">Remove</Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently remove the prospect from your list.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleRemove(prospect.id)}>
-                              Yes, remove prospect
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
-                    <TableCell>
-                      {prospect.status === 'For Approval' && (
-                        <Button onClick={() => handleApprove(prospect.id)}>
-                          Approve
-                        </Button>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleRowExpansion(prospect.id)}
-                      >
-                        {expandedRows[prospect.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  {expandedRows[prospect.id] && (
+          <ScrollArea className="h-[600px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Select</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Organisation</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>LinkedIn</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Active Campaign</TableHead>
+                  <TableHead onClick={() => handleSort('status')} className="cursor-pointer">
+                    Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+                  </TableHead>
+                  <TableHead>Remove</TableHead>
+                  <TableHead>Approve</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {prospects.map((prospect) => (
+                  <React.Fragment key={prospect.id}>
                     <TableRow>
-                      <TableCell colSpan={11}>
-                        <ProspectDetails prospect={prospect} />
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedProspects[prospect.id] || false}
+                          onCheckedChange={() => toggleProspectSelection(prospect.id)}
+                        />
+                      </TableCell>
+                      <TableCell>{prospect.name}</TableCell>
+                      <TableCell>{prospect.organisation}</TableCell>
+                      <TableCell>{prospect.title}</TableCell>
+                      <TableCell>
+                        <a href={prospect.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                          LinkedIn Profile
+                        </a>
+                      </TableCell>
+                      <TableCell>
+                        <a href={`mailto:${prospect.email}`} className="text-blue-500 hover:underline">
+                          {prospect.email}
+                        </a>
+                      </TableCell>
+                      <TableCell>{prospect.activeCampaign}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(prospect.status)}`}>
+                          {prospect.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive">Remove</Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently remove the prospect from your list.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleRemove(prospect.id)}>
+                                Yes, remove prospect
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                      <TableCell>
+                        {prospect.status === 'For Approval' && (
+                          <Button onClick={() => handleApprove(prospect.id)}>
+                            Approve
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleRowExpansion(prospect.id)}
+                        >
+                          {expandedRows[prospect.id] ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                        </Button>
                       </TableCell>
                     </TableRow>
-                  )}
-                </React.Fragment>
-              ))}
-            </TableBody>
-          </Table>
+                    {expandedRows[prospect.id] && (
+                      <TableRow>
+                        <TableCell colSpan={11}>
+                          <ProspectDetails prospect={prospect} />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
         </CardContent>
       </Card>
-      <div className="flex justify-center mt-4">
-        {Array.from({ length: Math.ceil(filteredProspects.length / prospectsPerPage) }, (_, i) => (
-          <Button
-            key={i}
-            onClick={() => paginate(i + 1)}
-            variant={currentPage === i + 1 ? "default" : "outline"}
-            className="mx-1"
-          >
-            {i + 1}
-          </Button>
-        ))}
-      </div>
     </div>
   );
 };
