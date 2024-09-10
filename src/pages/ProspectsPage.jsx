@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
-import { dummyProspects, getStatusColor, getActivityColor } from '../utils/prospectUtils';
+import { dummyProspects, getStatusColor } from '../utils/prospectUtils';
 import ProspectDetails from '../components/ProspectDetails';
 
 const ProspectsPage = () => {
-  const [selectedProspect, setSelectedProspect] = useState(null);
   const [filteredProspects, setFilteredProspects] = useState(dummyProspects);
   const [searchTerm, setSearchTerm] = useState('');
   const [campaignFilter, setCampaignFilter] = useState('All Campaigns');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
   const [expandedRows, setExpandedRows] = useState({});
 
-  const handleProspectClick = (prospect) => {
-    setSelectedProspect(prospect);
-  };
-
   const handleApprove = (id) => {
-    const updatedProspects = dummyProspects.map(prospect => 
+    const updatedProspects = filteredProspects.map(prospect => 
       prospect.id === id ? { ...prospect, status: 'Sequenced' } : prospect
     );
+    setFilteredProspects(updatedProspects);
+  };
+
+  const handleRemove = (id) => {
+    const updatedProspects = filteredProspects.filter(prospect => prospect.id !== id);
     setFilteredProspects(updatedProspects);
   };
 
@@ -103,7 +103,8 @@ const ProspectsPage = () => {
                 <TableHead>Email</TableHead>
                 <TableHead>Active Campaign</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Action</TableHead>
+                <TableHead>Remove</TableHead>
+                <TableHead>Approve</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -129,6 +130,27 @@ const ProspectsPage = () => {
                       <Badge className={getStatusColor(prospect.status)}>{prospect.status}</Badge>
                     </TableCell>
                     <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive">Remove</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently remove the prospect from your list.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleRemove(prospect.id)}>
+                              Yes, remove prospect
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                    <TableCell>
                       {prospect.status === 'For Approval' && (
                         <Button onClick={() => handleApprove(prospect.id)}>
                           Approve
@@ -147,7 +169,7 @@ const ProspectsPage = () => {
                   </TableRow>
                   {expandedRows[prospect.id] && (
                     <TableRow>
-                      <TableCell colSpan={9}>
+                      <TableCell colSpan={10}>
                         <ProspectDetails prospect={prospect} />
                       </TableCell>
                     </TableRow>
